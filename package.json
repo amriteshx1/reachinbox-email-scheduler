@@ -17,8 +17,5 @@
     "test": "npm run test -w backend",
     "db:migrate": "npm run prisma:migrate -w backend",
     "db:generate": "npm run prisma:generate -w backend"
-  },
-  "devDependencies": {
-    "@types/node": "^24.13.3"
   }
 }
