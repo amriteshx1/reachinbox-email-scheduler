@@ -5,6 +5,9 @@ import { logger } from "./logger";
 
 export const es = new Client({
   node: env.ELASTICSEARCH_URL,
+  auth: {
+    apiKey: env.ELASTICSEARCH_API_KEY,
+  },
   requestTimeout: 2_000,
   pingTimeout: 2_000,
   maxRetries: 1,

@@ -64,10 +64,12 @@ export function DashboardPage() {
   const scheduledMeta = useQuery({
     queryKey: ["emails", "scheduled", "count"],
     queryFn: () => api.listEmails({ status: "scheduled", page: 1, limit: 1 }),
+    refetchInterval: 5000,
   });
   const sentMeta = useQuery({
     queryKey: ["emails", "sent", "count"],
     queryFn: () => api.listEmails({ status: "sent", page: 1, limit: 1 }),
+    refetchInterval: 5000,
   });
 
   const connectSlack = () => {
