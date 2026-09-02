@@ -1,4 +1,4 @@
-import { isProd } from "./env";
+import { env } from "./env";
 
 export const QUEUE_EMAIL_SEND = "email-send";
 export const QUEUE_SEARCH_INDEX = "search-index";
@@ -47,11 +47,58 @@ export const EMAIL_INDEX = "emails";
 export const SESSION_COOKIE = "sid";
 export const SENDER_COUNT = 3;
 
-/** Cross-site SPA (Vercel) → API (Render) needs SameSite=None; Secure. Localhost stays Lax. */
-export const SESSION_COOKIE_OPTIONS = {
-  httpOnly: true as const,
-  sameSite: (isProd ? "none" : "lax") as "none" | "lax",
-  secure: isProd,
-  path: "/",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+export type SessionCookieOptions = {
+  httpOnly: true;
+  sameSite: "none" | "lax";
+  secure: boolean;
+  path: "/";
+  maxAge: number;
 };
+
+/**
+ * Cross-site SPA (Vercel) → API (Render) needs SameSite=None; Secure.
+ * Local / test stay Lax so http://localhost cookies still work.
+ */
+export function sessionCookieOptions(input: {
+  nodeEnv: string;
+  frontendUrl: string;
+}): SessionCookieOptions {
+  const useCrossSiteCookie =
+    input.nodeEnv === "production" || isPublicHttpsOrigin(input.frontendUrl);
+
+  return {
+    httpOnly: true,
+    sameSite: useCrossSiteCookie ? "none" : "lax",
+    secure: useCrossSiteCookie,
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+}
+
+function isPublicHttpsOrigin(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    return parsed.protocol === "https:" && host !== "localhost" && host !== "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+export const SESSION_COOKIE_OPTIONS = sessionCookieOptions({
+  nodeEnv: env.NODE_ENV,
+  frontendUrl: env.FRONTEND_URL,
+});
+
+/** Attributes Express needs to overwrite the session cookie on login/logout. */
+export function applySessionCookiePolicy(cookie: {
+  sameSite?: boolean | "lax" | "strict" | "none";
+  secure?: boolean | "auto";
+  httpOnly?: boolean;
+  path?: string;
+}): void {
+  cookie.sameSite = SESSION_COOKIE_OPTIONS.sameSite;
+  cookie.secure = SESSION_COOKIE_OPTIONS.secure;
+  cookie.httpOnly = SESSION_COOKIE_OPTIONS.httpOnly;
+  cookie.path = SESSION_COOKIE_OPTIONS.path;
+}

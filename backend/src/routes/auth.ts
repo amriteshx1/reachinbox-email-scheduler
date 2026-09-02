@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { env } from "../config/env";
-import { SESSION_COOKIE, SESSION_COOKIE_OPTIONS } from "../config/constants";
+import { applySessionCookiePolicy, SESSION_COOKIE, SESSION_COOKIE_OPTIONS } from "../config/constants";
 import { asyncHandler } from "../middleware/errorHandler";
 import { googleAuthUrl, loginWithGoogleCode } from "../services/google";
 import { AppError } from "../lib/errors";
@@ -11,6 +11,7 @@ export const authRouter = Router();
 authRouter.get("/google", (req, res) => {
   const state = randomUUID();
   req.session.oauthState = state;
+  applySessionCookiePolicy(req.session.cookie);
   req.session.save((err) => {
     if (err) {
       res.status(500).json({ error: { code: "SESSION_ERROR", message: "Could not start login" } });
@@ -39,6 +40,7 @@ authRouter.get(
       name: user.name,
       avatarUrl: user.avatarUrl,
     };
+    applySessionCookiePolicy(req.session.cookie);
     await new Promise<void>((resolve, reject) => {
       req.session.save((err) => (err ? reject(err) : resolve()));
     });

@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
-import { SESSION_COOKIE } from "../../src/config/constants";
+import { SESSION_COOKIE, SESSION_COOKIE_OPTIONS } from "../../src/config/constants";
 import { env } from "../../src/config/env";
 import { preparePhase2, buildApp, loginAgent, stopAndDrain } from "../helpers/app";
 import { createUserWithSender, deletePhase2Users } from "../helpers/db";
@@ -36,6 +36,7 @@ describe("google oauth and session behavior", () => {
     expect(res.headers.location).toContain("client_id=");
     expect(res.headers.location).toContain("openid");
     expect(res.headers.location).toContain(encodeURIComponent(env.GOOGLE_CALLBACK_URL));
+    expectSessionCookieHeader(res.headers["set-cookie"]?.[0] ?? "");
   });
 
   it("rejects a Google callback with mismatched OAuth state", async () => {
@@ -102,9 +103,19 @@ describe("google oauth and session behavior", () => {
     const res = await request(app).post("/__test__/session").send({
       user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl },
     });
-    const raw = res.headers["set-cookie"]?.[0] ?? "";
-    expect(raw).toContain(`${SESSION_COOKIE}=`);
-    expect(raw.toLowerCase()).toContain("httponly");
-    expect(raw.toLowerCase()).toContain("samesite=lax");
+    expectSessionCookieHeader(res.headers["set-cookie"]?.[0] ?? "");
   });
 });
+
+function expectSessionCookieHeader(raw: string) {
+  expect(raw).toContain(`${SESSION_COOKIE}=`);
+  expect(raw.toLowerCase()).toContain("httponly");
+  if (SESSION_COOKIE_OPTIONS.sameSite === "none") {
+    expect(raw.toLowerCase()).toContain("samesite=none");
+    expect(raw.toLowerCase()).toMatch(/;\s*secure(?:;|$)/i);
+  } else {
+    expect(raw.toLowerCase()).toContain("samesite=lax");
+    expect(raw.toLowerCase()).not.toMatch(/samesite=none/i);
+    expect(raw.toLowerCase()).not.toMatch(/;\s*secure(?:;|$)/i);
+  }
+}

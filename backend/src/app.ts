@@ -20,7 +20,7 @@ import type { Request, Response, NextFunction } from "express";
 
 export function createApp() {
   const app = express();
-  app.set("trust proxy", 1);
+  app.set("trust proxy", true);
   app.disable("x-powered-by");
 
   app.use(
@@ -31,7 +31,7 @@ export function createApp() {
   );
   app.use(
     cors({
-      origin: env.FRONTEND_URL,
+      origin: new URL(env.FRONTEND_URL).origin,
       credentials: true,
     }),
   );
@@ -44,6 +44,8 @@ export function createApp() {
       secret: env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
+      proxy: true,
+      rolling: true,
       store: new RedisStore({ client: redis, prefix: "sess:" }),
       cookie: SESSION_COOKIE_OPTIONS,
     }),
