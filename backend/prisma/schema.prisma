@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EmailStatus {
+  scheduled
+  sending
+  sent
+  failed
+}
+
+enum CampaignStatus {
+  scheduled
+  sending
+  completed
+  failed
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  googleId  String   @unique
+  email     String   @unique
+  name      String
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  senders         Sender[]
+  campaigns       Campaign[]
+  emails          Email[]
+  slackConnection SlackConnection?
+}
+
+model SlackConnection {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @unique @db.Uuid
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId         String
+  teamName       String
+  accessToken    String
+  webhookUrl     String
+  webhookChannel String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Sender {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  fromName   String
+  fromEmail  String
+  smtpHost   String
+  smtpPort   Int      @default(587)
+  smtpSecure Boolean  @default(false)
+  smtpUser   String
+  smtpPass   String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaigns Campaign[]
+  emails    Email[]
+
+  @@index([userId])
+}
+
+model Campaign {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @db.Uuid
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  senderId    String         @db.Uuid
+  sender      Sender         @relation(fields: [senderId], references: [id])
+  subject     String
+  body        String
+  startAt     DateTime
+  delayMs     Int
+  hourlyLimit Int
+  leadCount   Int
+  status      CampaignStatus @default(scheduled)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  emails Email[]
+
+  @@index([userId, createdAt])
+}
+
+model Email {
+  id                String      @id @default(uuid()) @db.Uuid
+  campaignId        String      @db.Uuid
+  campaign          Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId            String      @db.Uuid
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  senderId          String      @db.Uuid
+  sender            Sender      @relation(fields: [senderId], references: [id])
+  toEmail           String
+  subject           String
+  body              String
+  status            EmailStatus @default(scheduled)
+  scheduledAt       DateTime
+  sentAt            DateTime?
+  failedAt          DateTime?
+  providerMessageId String?
+  previewUrl        String?
+  failureReason     String?
+  attempts          Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@unique([campaignId, toEmail])
+  @@index([userId, status, scheduledAt])
+  @@index([userId, status, sentAt])
+  @@index([senderId, scheduledAt])
+  @@index([status, scheduledAt])
+}
