@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { env } from "../config/env";
+import { SESSION_COOKIE, SESSION_COOKIE_OPTIONS } from "../config/constants";
 import { asyncHandler } from "../middleware/errorHandler";
 import { googleAuthUrl, loginWithGoogleCode } from "../services/google";
 import { AppError } from "../lib/errors";
@@ -61,7 +62,12 @@ authRouter.post(
     await new Promise<void>((resolve, reject) => {
       req.session.destroy((err) => (err ? reject(err) : resolve()));
     });
-    res.clearCookie("sid");
+    res.clearCookie(SESSION_COOKIE, {
+      httpOnly: SESSION_COOKIE_OPTIONS.httpOnly,
+      sameSite: SESSION_COOKIE_OPTIONS.sameSite,
+      secure: SESSION_COOKIE_OPTIONS.secure,
+      path: SESSION_COOKIE_OPTIONS.path,
+    });
     res.status(204).end();
   }),
 );

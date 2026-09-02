@@ -1,3 +1,5 @@
+import { isProd } from "./env";
+
 export const QUEUE_EMAIL_SEND = "email-send";
 export const QUEUE_SEARCH_INDEX = "search-index";
 export const QUEUE_SLACK_NOTIFY = "slack-notify";
@@ -44,3 +46,12 @@ export const SCHEDULE_HORIZON_HOURS = 48;
 export const EMAIL_INDEX = "emails";
 export const SESSION_COOKIE = "sid";
 export const SENDER_COUNT = 3;
+
+/** Cross-site SPA (Vercel) → API (Render) needs SameSite=None; Secure. Localhost stays Lax. */
+export const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true as const,
+  sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+  secure: isProd,
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};

@@ -105,5 +105,6 @@ describe("google oauth and session behavior", () => {
     const raw = res.headers["set-cookie"]?.[0] ?? "";
     expect(raw).toContain(`${SESSION_COOKIE}=`);
     expect(raw.toLowerCase()).toContain("httponly");
+    expect(raw.toLowerCase()).toContain("samesite=lax");
   });
 });

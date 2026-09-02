@@ -3,9 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import session from "express-session";
 import { RedisStore } from "connect-redis";
-import { env, isProd } from "./config/env";
+import { env } from "./config/env";
 import { redis } from "./lib/redis";
-import { SESSION_COOKIE } from "./config/constants";
+import { SESSION_COOKIE, SESSION_COOKIE_OPTIONS } from "./config/constants";
 import { errorHandler } from "./middleware/errorHandler";
 import { requireAuth } from "./middleware/requireAuth";
 import { authRouter } from "./routes/auth";
@@ -45,12 +45,7 @@ export function createApp() {
       resave: false,
       saveUninitialized: false,
       store: new RedisStore({ client: redis, prefix: "sess:" }),
-      cookie: {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: isProd,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      },
+      cookie: SESSION_COOKIE_OPTIONS,
     }),
   );
 
