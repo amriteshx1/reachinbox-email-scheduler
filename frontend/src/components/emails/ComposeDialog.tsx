@@ -207,6 +207,13 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     queueMicrotask(() => toInputRef.current?.focus());
   };
 
+  const senders = sendersQuery.data ?? [];
+  const selectedSenderId =
+    (senderId && senders.some((sender) => sender.id === senderId) ? senderId : null) ??
+    senders.find((sender) => sender.isDefault)?.id ??
+    senders[0]?.id ??
+    "";
+
   const create = useMutation({
     mutationFn: (form: FormData) => api.createCampaign(form),
     onSuccess: (data) => {
@@ -357,15 +364,14 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
           <div className="border-b border-line py-2.5">
             <div className="relative inline-flex">
               <select
-                value={senderId}
+                value={selectedSenderId}
                 onChange={(e) => setSenderId(e.target.value)}
                 className="h-8 appearance-none rounded-full bg-[#f5f5f5] py-0 pl-3 pr-8 text-sm outline-none"
                 disabled={sendersQuery.isPending}
               >
-                <option value="">Default sender</option>
-                {(sendersQuery.data ?? []).map((sender) => (
+                {senders.map((sender) => (
                   <option key={sender.id} value={sender.id}>
-                    {sender.fromEmail}
+                    {sender.label} · {sender.fromEmail}
                   </option>
                 ))}
               </select>
