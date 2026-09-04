@@ -2,7 +2,9 @@ import { useMemo, useRef, useState, type ChangeEvent, type FormEvent, type Keybo
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../lib/api";
 import { toDatetimeLocalValue } from "../../lib/format";
+import { isBlankBody } from "../../lib/html";
 import { parseLeadsPreview, type LeadsPreview } from "../../lib/parseLeads";
+import { BodyEditor } from "./BodyEditor";
 import { Button } from "../ui/Button";
 import { IconClock, IconPaperclip, IconUpload } from "../ui/Icons";
 import { Spinner } from "../ui/Spinner";
@@ -246,7 +248,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
       toast("error", "Subject is required.");
       return false;
     }
-    if (!body.trim()) {
+    if (isBlankBody(body)) {
       toast("error", "Body is required.");
       return false;
     }
@@ -455,13 +457,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
         </div>
 
         <div className="mt-5 rounded-2xl bg-[#fafafa] px-5 pb-5 pt-4">
-          <EditorToolbar />
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Type Your Reply..."
-            className="mt-3 min-h-65 w-full resize-y border-0 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
-          />
+          <BodyEditor value={body} onChange={setBody} />
         </div>
         <p className="mt-3 text-sm text-muted">
           {detected ? (
@@ -502,29 +498,3 @@ function CalendarIcon() {
   );
 }
 
-function EditorToolbar() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none mx-auto flex h-10 w-max items-center gap-3 rounded-full bg-white px-4 text-muted shadow-[0_1px_8px_rgba(0,0,0,0.06)]"
-    >
-      <ToolGlyph d="M7 8v8M7 8h4.5a2.5 2.5 0 0 1 0 5H7" />
-      <ToolGlyph d="M4 12h6M14 12h6M8 8l-4 4 4 4M16 8l4 4-4 4" />
-      <span className="text-xs font-semibold">Tt</span>
-      <span className="text-sm font-bold">B</span>
-      <span className="text-sm italic">I</span>
-      <span className="text-sm underline">U</span>
-      <ToolGlyph d="M4 6h16M4 12h10M4 18h14" />
-      <ToolGlyph d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
-      <ToolGlyph d="M8 8h12M8 16h12M4 8v8" />
-    </div>
-  );
-}
-
-function ToolGlyph({ d }: { d: string }) {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d={d} />
-    </svg>
-  );
-}

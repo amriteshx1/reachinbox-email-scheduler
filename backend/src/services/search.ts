@@ -5,6 +5,7 @@ import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import { EmailStatus, Prisma } from "@prisma/client";
 import { emailListStatuses } from "./scheduler";
+import { htmlToPlainText, looksLikeHtml } from "../lib/html";
 
 export type EmailSearchHit = {
   id: string;
@@ -24,7 +25,7 @@ function toDocument(email: Email) {
     senderId: email.senderId,
     toEmail: email.toEmail,
     subject: email.subject,
-    body: email.body,
+    body: looksLikeHtml(email.body) ? htmlToPlainText(email.body) : email.body,
     status: email.status,
     scheduledAt: email.scheduledAt,
     sentAt: email.sentAt,

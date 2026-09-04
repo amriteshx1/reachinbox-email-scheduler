@@ -1,0 +1,49 @@
+.compose-body .tiptap {
+  min-height: 16.25rem;
+  outline: none;
+  cursor: text;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #111111;
+}
+
+.compose-body .tiptap p.is-editor-empty:first-child::before {
+  color: #b0b0b0;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.compose-body .tiptap p {
+  margin: 0 0 0.5rem;
+}
+
+.compose-body .tiptap p:last-child {
+  margin-bottom: 0;
+}
+
+.compose-body .tiptap h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.compose-body .tiptap ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.compose-body .tiptap ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.compose-body .tiptap blockquote {
+  margin: 0 0 0.5rem;
+  border-left: 2px solid #ececec;
+  padding-left: 0.75rem;
+  color: #8a8a8a;
+}

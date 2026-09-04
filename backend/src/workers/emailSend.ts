@@ -8,6 +8,7 @@ import { createBullmqConnection, redis } from "../lib/redis";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import { sendEmail } from "../lib/mailer";
+import { htmlToPlainText, looksLikeHtml } from "../lib/html";
 import { enqueueSearchIndex, enqueueSlackRateLimit } from "../lib/queues";
 import { releaseSendPermit, reserveNextSlot, tryAcquireSendPermit } from "../services/rateLimiter";
 import { hourBucketUtc } from "../lib/hours";
@@ -182,10 +183,12 @@ async function processSend(job: Job<EmailSendJobData>, token?: string): Promise<
   }
 
   try {
+    const html = looksLikeHtml(email.body) ? email.body : undefined;
     const info = await sendEmail(email.sender, {
       to: email.toEmail,
       subject: email.subject,
-      text: email.body,
+      text: html ? htmlToPlainText(email.body) : email.body,
+      html,
     });
     const previewUrl = getTestMessageUrl(info);
 

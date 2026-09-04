@@ -8,6 +8,7 @@ export type SendEmailInput = {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 };
 
 export type SendEmailFn = (
@@ -55,6 +56,7 @@ export async function sendEmail(
     to: input.to,
     subject: input.subject,
     text: input.text,
+    ...(input.html ? { html: input.html } : {}),
   });
   logger.debug({ messageId: info.messageId, to: input.to }, "smtp accepted");
   return info;
