@@ -65,15 +65,21 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
 
   const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const next = e.target.files?.[0] ?? null;
-    setFile(next);
     setFormError(null);
     if (!next) {
-      setPreview(paste ? parseLeadsPreview(paste, "leads.txt") : null);
+      setFile(null);
+      setPreview(null);
       return;
     }
     try {
       const text = await next.text();
-      setPreview(parseLeadsPreview(text, next.name));
+      const parsed = parseLeadsPreview(text, next.name);
+      setFile(next);
+      setPreview(parsed);
+      if (draft.trim()) {
+        setPaste((prev) => (prev.trim() ? `${prev.trim()}\n${draft.trim()}` : draft.trim()));
+        setDraft("");
+      }
     } catch {
       setPreview(null);
       setFormError("Could not read that file.");
@@ -87,8 +93,8 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
   const detected = useMemo(() => {
     const typed = [paste, draft].filter((part) => part.trim()).join("\n");
     if (file && preview) {
-      if (!typed.trim()) return preview;
-      return parseLeadsPreview(`${preview.emails.join("\n")}\n${typed}`, "leads.txt");
+      const merged = [typed, preview.emails.join("\n")].filter((part) => part.trim()).join("\n");
+      return merged.trim() ? parseLeadsPreview(merged, "leads.txt") : preview;
     }
     return typed.trim() ? parseLeadsPreview(typed, "leads.txt") : null;
   }, [draft, file, paste, preview]);
@@ -104,7 +110,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     if (!cleaned.length) return;
     const fromFile = file && preview ? preview.emails.join("\n") : "";
     setPaste((prev) => {
-      const base = [fromFile, prev.trim()].filter(Boolean).join("\n");
+      const base = [prev.trim(), fromFile].filter(Boolean).join("\n");
       return base ? `${base}\n${cleaned.join("\n")}` : cleaned.join("\n");
     });
     if (file) clearFileUpload();
@@ -156,21 +162,10 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     if (draft.trim() && draft.trim().toLowerCase() !== email) {
       appendCommitted([draft.trim()]);
     }
-    if (file && preview) {
-      setFile(null);
-      setPreview(null);
-      if (fileRef.current) fileRef.current.value = "";
-      setPaste(preview.emails.filter((item) => item !== email).join("\n"));
-      setDraft(email);
-    } else {
-      setPaste(
-        paste
-          .split(/\r?\n/)
-          .filter((line) => line.trim().toLowerCase() !== email)
-          .join("\n"),
-      );
-      setDraft(email);
-    }
+    const rest = (detected?.emails ?? []).filter((item) => item !== email);
+    if (file) clearFileUpload();
+    setPaste(rest.join("\n"));
+    setDraft(email);
     queueMicrotask(() => toInputRef.current?.focus());
   };
 
@@ -226,16 +221,17 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
       form.append("file", file);
     } else {
       const fromFile = file && preview ? preview.emails.join("\n") : "";
-      form.append("leadsText", [fromFile, typedLeads].filter((part) => part.trim()).join("\n"));
+      form.append("leadsText", [typedLeads, fromFile].filter((part) => part.trim()).join("\n"));
     }
     create.mutate(form);
   };
 
   if (!open) return null;
 
-  const committedEmails = committedPreview?.emails ?? [];
-  const pillEmails = file ? (preview?.emails.slice(0, 3) ?? []) : committedEmails;
-  const extra = file ? Math.max(0, (preview?.emails.length ?? 0) - pillEmails.length) : 0;
+  const allEmails = detected?.emails ?? [];
+  const compact = Boolean(file && preview && preview.emails.length > 3);
+  const pillEmails = compact ? allEmails.slice(0, 3) : allEmails;
+  const extra = compact ? Math.max(0, allEmails.length - pillEmails.length) : 0;
 
   return (
     <div className="fixed inset-0 z-40 overflow-y-auto bg-white">
@@ -360,11 +356,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                 onChange={onToChange}
                 onKeyDown={onToKeyDown}
                 onBlur={() => commitDraftValue(draft)}
-                placeholder={
-                  (file && preview && preview.emails.length) || committedEmails.length
-                    ? "Add another email"
-                    : "recipient@example.com"
-                }
+                placeholder={allEmails.length ? "Add another email" : "recipient@example.com"}
                 className="h-8 min-w-48 flex-1 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
               />
             </div>
@@ -436,6 +428,9 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             {detected.skippedDuplicate ? ` · ${detected.skippedDuplicate} duplicate` : ""}
           </p>
         ) : null}
+        <p className={`${detected ? "mt-1" : "mt-3"} text-sm text-muted`}>
+          Press Enter or comma after each address to add it as a badge. You can keep typing or upload a list — existing addresses are kept.
+        </p>
       </form>
     </div>
   );
