@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../lib/api";
 import { toDatetimeLocalValue } from "../../lib/format";
@@ -27,6 +27,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
   });
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const toInputRef = useRef<HTMLInputElement>(null);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [senderId, setSenderId] = useState("");
@@ -36,6 +37,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<LeadsPreview | null>(null);
   const [paste, setPaste] = useState("");
+  const [draft, setDraft] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [laterOpen, setLaterOpen] = useState(false);
@@ -50,6 +52,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     setFile(null);
     setPreview(null);
     setPaste("");
+    setDraft("");
     setErrors({});
     setFormError(null);
     setLaterOpen(false);
@@ -77,8 +80,85 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     }
   };
 
-  const pastePreview = useMemo(() => (paste.trim() ? parseLeadsPreview(paste, "leads.txt") : null), [paste]);
+  const committedPreview = useMemo(
+    () => (paste.trim() ? parseLeadsPreview(paste, "leads.txt") : null),
+    [paste],
+  );
+  const pastePreview = useMemo(() => {
+    const text = [paste, draft].filter((part) => part.trim()).join("\n");
+    return text.trim() ? parseLeadsPreview(text, "leads.txt") : null;
+  }, [draft, paste]);
   const detected = file ? preview : pastePreview;
+
+  const appendCommitted = (tokens: string[]) => {
+    const cleaned = tokens.map((token) => token.trim()).filter(Boolean);
+    if (!cleaned.length) return;
+    setPaste((prev) => (prev.trim() ? `${prev.trim()}\n${cleaned.join("\n")}` : cleaned.join("\n")));
+  };
+
+  const commitDraftValue = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setDraft("");
+      return;
+    }
+    appendCommitted([trimmed]);
+    setDraft("");
+  };
+
+  const onToChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!/[,;\n]/.test(value)) {
+      setDraft(value);
+      return;
+    }
+    const parts = value.split(/[,;\n]+/);
+    const rest = parts.pop() ?? "";
+    appendCommitted(parts);
+    setDraft(rest);
+  };
+
+  const onToKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitDraftValue(draft);
+      return;
+    }
+    if (e.key !== "Backspace" || draft !== "") return;
+    const emails = committedPreview?.emails ?? [];
+    const last = emails[emails.length - 1];
+    if (!last) return;
+    e.preventDefault();
+    setPaste(
+      paste
+        .split(/\r?\n/)
+        .filter((line) => line.trim().toLowerCase() !== last)
+        .join("\n"),
+    );
+    setDraft(last);
+  };
+
+  const editChip = (email: string) => {
+    if (draft.trim() && draft.trim().toLowerCase() !== email) {
+      appendCommitted([draft.trim()]);
+    }
+    if (file && preview) {
+      setFile(null);
+      setPreview(null);
+      if (fileRef.current) fileRef.current.value = "";
+      setPaste(preview.emails.filter((item) => item !== email).join("\n"));
+      setDraft(email);
+    } else {
+      setPaste(
+        paste
+          .split(/\r?\n/)
+          .filter((line) => line.trim().toLowerCase() !== email)
+          .join("\n"),
+      );
+      setDraft(email);
+    }
+    queueMicrotask(() => toInputRef.current?.focus());
+  };
 
   const create = useMutation({
     mutationFn: (form: FormData) => api.createCampaign(form),
@@ -110,7 +190,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     if (!Number.isInteger(hourlyLimit) || hourlyLimit < 1) {
       next.hourlyLimit = "Hourly limit must be at least 1.";
     }
-    if (!file && !paste.trim()) next.leads = "Upload a list or paste email addresses.";
+    if (!file && !paste.trim() && !draft.trim()) next.leads = "Upload a list or paste email addresses.";
     else if (!detected || detected.emails.length === 0) next.leads = "No valid email addresses detected.";
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -128,14 +208,15 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     form.append("hourlyLimit", String(hourlyLimit));
     if (senderId) form.append("senderId", senderId);
     if (file) form.append("file", file);
-    else form.append("leadsText", paste);
+    else form.append("leadsText", [paste, draft].filter((part) => part.trim()).join("\n"));
     create.mutate(form);
   };
 
   if (!open) return null;
 
-  const pills = detected?.emails.slice(0, 3) ?? [];
-  const extra = detected ? Math.max(0, detected.emails.length - 3) : 0;
+  const committedEmails = committedPreview?.emails ?? [];
+  const pillEmails = file ? (preview?.emails.slice(0, 3) ?? []) : committedEmails;
+  const extra = file ? Math.max(0, (preview?.emails.length ?? 0) - pillEmails.length) : 0;
 
   return (
     <div className="fixed inset-0 z-40 overflow-y-auto bg-white">
@@ -239,21 +320,29 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
           <div className="py-3.5 text-sm text-muted">To</div>
           <div className="flex items-center gap-2 border-b border-line py-2.5">
             <div className="flex min-h-8 min-w-0 flex-1 flex-wrap items-center gap-1.5">
-              {pills.length ? (
-                pills.map((email) => (
-                  <span key={email} className="rounded-full border border-brand/50 px-2.5 py-0.5 text-xs font-medium text-brand">
-                    {email}
-                  </span>
-                ))
-              ) : (
+              {pillEmails.map((email) => (
+                <button
+                  key={email}
+                  type="button"
+                  title="Click to edit"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => editChip(email)}
+                  className="rounded-full border border-brand/50 px-2.5 py-0.5 text-xs font-medium text-brand hover:bg-mint"
+                >
+                  {email}
+                </button>
+              ))}
+              {!file ? (
                 <input
-                  value={paste}
-                  onChange={(e) => setPaste(e.target.value)}
-                  placeholder="recipient@example.com"
-                  className="h-8 w-full bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
+                  ref={toInputRef}
+                  value={draft}
+                  onChange={onToChange}
+                  onKeyDown={onToKeyDown}
+                  onBlur={() => commitDraftValue(draft)}
+                  placeholder={committedEmails.length ? "Add another email" : "recipient@example.com"}
+                  className="h-8 min-w-48 flex-1 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
                 />
-              )}
-              {extra > 0 ? (
+              ) : extra > 0 ? (
                 <span className="rounded-full border border-brand/50 px-2.5 py-0.5 text-xs font-medium text-brand">+{extra}</span>
               ) : null}
             </div>
@@ -312,7 +401,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Type Your Reply..."
-            className="mt-3 min-h-[260px] w-full resize-y border-0 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
+            className="mt-3 min-h-65 w-full resize-y border-0 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
           />
         </div>
         {errors.body ? <p className="mt-2 text-xs text-danger">{errors.body}</p> : null}
