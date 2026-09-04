@@ -41,6 +41,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
   const [paste, setPaste] = useState("");
   const [draft, setDraft] = useState("");
   const [laterOpen, setLaterOpen] = useState(false);
+  const [importSkipped, setImportSkipped] = useState({ invalid: 0, duplicate: 0 });
 
   const reset = () => {
     setSubject("");
@@ -54,6 +55,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     setPaste("");
     setDraft("");
     setLaterOpen(false);
+    setImportSkipped({ invalid: 0, duplicate: 0 });
   };
 
   const close = () => {
@@ -63,20 +65,29 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
 
   const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const next = e.target.files?.[0] ?? null;
-    if (!next) {
-      setFile(null);
-      setPreview(null);
-      return;
-    }
+    if (!next) return;
     try {
       const text = await next.text();
       const parsed = parseLeadsPreview(text, next.name);
+      const priorFileEmails = file && preview ? preview.emails.join("\n") : "";
+      const priorSkips =
+        file && preview
+          ? { invalid: preview.skippedInvalid, duplicate: preview.skippedDuplicate }
+          : null;
+      const pendingDraft = draft.trim();
+
+      if (priorSkips) {
+        setImportSkipped((prev) => ({
+          invalid: prev.invalid + priorSkips.invalid,
+          duplicate: prev.duplicate + priorSkips.duplicate,
+        }));
+      }
+      if (priorFileEmails || pendingDraft) {
+        setPaste((prev) => [prev.trim(), priorFileEmails, pendingDraft].filter(Boolean).join("\n"));
+      }
+      if (pendingDraft) setDraft("");
       setFile(next);
       setPreview(parsed);
-      if (draft.trim()) {
-        setPaste((prev) => (prev.trim() ? `${prev.trim()}\n${draft.trim()}` : draft.trim()));
-        setDraft("");
-      }
     } catch {
       setPreview(null);
       toast("error", "Could not read that file.");
@@ -95,15 +106,43 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     return committedPreview?.emails ?? [];
   }, [committedPreview, file, paste, preview]);
   const detected = useMemo(() => {
-    const typed = [paste, draft].filter((part) => part.trim()).join("\n");
-    if (file && preview) {
-      const merged = [typed, preview.emails.join("\n")].filter((part) => part.trim()).join("\n");
-      return merged.trim() ? parseLeadsPreview(merged, "leads.txt") : preview;
+    const empty = { emails: [] as string[], skippedInvalid: 0, skippedDuplicate: 0 };
+    const pasteParsed = paste.trim() ? parseLeadsPreview(paste, "leads.txt") : empty;
+    const draftParsed = draft.trim() ? parseLeadsPreview(draft, "leads.txt") : empty;
+    const fileEmails = file && preview ? preview.emails : [];
+    const fileInvalid = file && preview ? preview.skippedInvalid : 0;
+    const fileDuplicate = file && preview ? preview.skippedDuplicate : 0;
+
+    const seen = new Set<string>();
+    const emails: string[] = [];
+    let overlap = 0;
+    for (const email of [...pasteParsed.emails, ...fileEmails]) {
+      if (seen.has(email)) {
+        overlap += 1;
+        continue;
+      }
+      seen.add(email);
+      emails.push(email);
     }
-    return typed.trim() ? parseLeadsPreview(typed, "leads.txt") : null;
-  }, [draft, file, paste, preview]);
+    for (const email of draftParsed.emails) {
+      if (seen.has(email)) continue;
+      seen.add(email);
+      emails.push(email);
+    }
+
+    const skippedInvalid = importSkipped.invalid + fileInvalid + pasteParsed.skippedInvalid;
+    const skippedDuplicate =
+      importSkipped.duplicate + fileDuplicate + pasteParsed.skippedDuplicate + overlap;
+
+    if (!emails.length && skippedInvalid === 0 && skippedDuplicate === 0) return null;
+    return { emails, skippedInvalid, skippedDuplicate };
+  }, [draft, file, importSkipped, paste, preview]);
 
   const clearFileUpload = () => {
+    setImportSkipped((prev) => ({
+      invalid: prev.invalid + (preview?.skippedInvalid ?? 0),
+      duplicate: prev.duplicate + (preview?.skippedDuplicate ?? 0),
+    }));
     setFile(null);
     setPreview(null);
     if (fileRef.current) fileRef.current.value = "";
@@ -149,24 +188,19 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
       return;
     }
     if (e.key !== "Backspace" || draft !== "") return;
-    const emails = committedPreview?.emails ?? [];
-    const last = emails[emails.length - 1];
+    const last = badgeEmails[badgeEmails.length - 1];
     if (!last) return;
     e.preventDefault();
-    setPaste(
-      paste
-        .split(/\r?\n/)
-        .filter((line) => line.trim().toLowerCase() !== last)
-        .join("\n"),
-    );
-    setDraft(last);
+    const rest = badgeEmails.slice(0, -1);
+    if (file) clearFileUpload();
+    setPaste(rest.join("\n"));
   };
 
   const editChip = (email: string) => {
     if (draft.trim() && draft.trim().toLowerCase() !== email) {
       appendCommitted([draft.trim()]);
     }
-    const rest = (badgeEmails).filter((item) => item !== email);
+    const rest = badgeEmails.filter((item) => item !== email);
     if (file) clearFileUpload();
     setPaste(rest.join("\n"));
     setDraft(email);
@@ -423,16 +457,14 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             className="mt-3 min-h-65 w-full resize-y border-0 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
           />
         </div>
-        {detected ? (
-          <p className="mt-3 text-sm text-muted">
-            <span className="font-semibold text-brand">{detected.emails.length}</span> email
-            {detected.emails.length === 1 ? "" : "s"} detected
-            {detected.skippedInvalid ? ` · ${detected.skippedInvalid} invalid` : ""}
-            {detected.skippedDuplicate ? ` · ${detected.skippedDuplicate} duplicate` : ""}
-          </p>
-        ) : null}
-        <p className={`${detected ? "mt-1" : "mt-3"} text-sm text-muted`}>
-          Press Enter or comma after each address to add it as a badge. You can keep typing or upload a list — existing addresses are kept.
+        <p className="mt-3 text-sm text-muted">
+          {detected ? (
+            <>
+              <span className="font-semibold text-brand">{detected.emails.length}</span>
+              {` email${detected.emails.length === 1 ? "" : "s"} detected · ${detected.skippedInvalid} invalid · ${detected.skippedDuplicate} duplicate · `}
+            </>
+          ) : null}
+          Press Enter or comma for each email address in order to add that.
         </p>
       </form>
     </div>
