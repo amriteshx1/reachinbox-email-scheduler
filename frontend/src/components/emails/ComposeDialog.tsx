@@ -87,6 +87,13 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     () => (paste.trim() ? parseLeadsPreview(paste, "leads.txt") : null),
     [paste],
   );
+  const badgeEmails = useMemo(() => {
+    if (file && preview) {
+      const merged = [paste, preview.emails.join("\n")].filter((part) => part.trim()).join("\n");
+      return merged.trim() ? parseLeadsPreview(merged, "leads.txt").emails : preview.emails;
+    }
+    return committedPreview?.emails ?? [];
+  }, [committedPreview, file, paste, preview]);
   const detected = useMemo(() => {
     const typed = [paste, draft].filter((part) => part.trim()).join("\n");
     if (file && preview) {
@@ -159,7 +166,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     if (draft.trim() && draft.trim().toLowerCase() !== email) {
       appendCommitted([draft.trim()]);
     }
-    const rest = (detected?.emails ?? []).filter((item) => item !== email);
+    const rest = (badgeEmails).filter((item) => item !== email);
     if (file) clearFileUpload();
     setPaste(rest.join("\n"));
     setDraft(email);
@@ -239,10 +246,9 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
 
   if (!open) return null;
 
-  const allEmails = detected?.emails ?? [];
   const compact = Boolean(file && preview && preview.emails.length > 3);
-  const pillEmails = compact ? allEmails.slice(0, 3) : allEmails;
-  const extra = compact ? Math.max(0, allEmails.length - pillEmails.length) : 0;
+  const pillEmails = compact ? badgeEmails.slice(0, 3) : badgeEmails;
+  const extra = compact ? Math.max(0, badgeEmails.length - pillEmails.length) : 0;
 
   return (
     <div className="fixed inset-0 z-40 overflow-y-auto bg-white">
@@ -359,8 +365,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                 value={draft}
                 onChange={onToChange}
                 onKeyDown={onToKeyDown}
-                onBlur={() => commitDraftValue(draft)}
-                placeholder={allEmails.length ? "Add another email" : "recipient@example.com"}
+                placeholder={badgeEmails.length ? "Add another email" : "recipient@example.com"}
                 className="h-8 min-w-48 flex-1 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
               />
             </div>
