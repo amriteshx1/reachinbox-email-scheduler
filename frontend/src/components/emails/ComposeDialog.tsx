@@ -6,6 +6,7 @@ import { parseLeadsPreview, type LeadsPreview } from "../../lib/parseLeads";
 import { Button } from "../ui/Button";
 import { IconClock, IconPaperclip, IconUpload } from "../ui/Icons";
 import { Spinner } from "../ui/Spinner";
+import { useToast } from "../ui/ToastProvider";
 
 const MIN_DELAY_SEC = 2;
 const DEFAULT_HOURLY = 50;
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export function ComposeDialog({ open, onClose, onScheduled }: Props) {
+  const { toast } = useToast();
   const sendersQuery = useQuery({
     queryKey: ["senders"],
     queryFn: async () => {
@@ -38,8 +40,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
   const [preview, setPreview] = useState<LeadsPreview | null>(null);
   const [paste, setPaste] = useState("");
   const [draft, setDraft] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [laterOpen, setLaterOpen] = useState(false);
 
   const reset = () => {
@@ -53,8 +53,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     setPreview(null);
     setPaste("");
     setDraft("");
-    setErrors({});
-    setFormError(null);
     setLaterOpen(false);
   };
 
@@ -65,7 +63,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
 
   const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const next = e.target.files?.[0] ?? null;
-    setFormError(null);
     if (!next) {
       setFile(null);
       setPreview(null);
@@ -82,7 +79,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
       }
     } catch {
       setPreview(null);
-      setFormError("Could not read that file.");
+      toast("error", "Could not read that file.");
     }
   };
 
@@ -184,30 +181,44 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
       close();
     },
     onError: (err) => {
-      setFormError(err instanceof ApiError ? err.message : "Could not schedule this campaign.");
+      toast("error", err instanceof ApiError ? err.message : "Could not schedule this campaign.");
     },
   });
 
   const validate = (): boolean => {
-    const next: Record<string, string> = {};
-    if (!subject.trim()) next.subject = "Subject is required.";
-    if (!body.trim()) next.body = "Body is required.";
-    if (!startAt) next.startAt = "Start time is required.";
+    if (!file && !paste.trim() && !draft.trim()) {
+      toast("error", "Add at least one recipient.");
+      return false;
+    }
+    if (!detected || detected.emails.length === 0) {
+      toast("error", "No valid email addresses detected.");
+      return false;
+    }
+    if (!subject.trim()) {
+      toast("error", "Subject is required.");
+      return false;
+    }
+    if (!body.trim()) {
+      toast("error", "Body is required.");
+      return false;
+    }
+    if (!startAt) {
+      toast("error", "Start time is required.");
+      return false;
+    }
     if (!Number.isFinite(delaySec) || delaySec < MIN_DELAY_SEC) {
-      next.delaySec = `Delay must be at least ${MIN_DELAY_SEC} seconds.`;
+      toast("error", `Delay must be at least ${MIN_DELAY_SEC} seconds.`);
+      return false;
     }
     if (!Number.isInteger(hourlyLimit) || hourlyLimit < 1) {
-      next.hourlyLimit = "Hourly limit must be at least 1.";
+      toast("error", "Hourly limit must be at least 1.");
+      return false;
     }
-    if (!file && !paste.trim() && !draft.trim()) next.leads = "Upload a list or paste email addresses.";
-    else if (!detected || detected.emails.length === 0) next.leads = "No valid email addresses detected.";
-    setErrors(next);
-    return Object.keys(next).length === 0;
+    return true;
   };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     if (!validate()) return;
     const form = new FormData();
     form.append("subject", subject.trim());
@@ -257,16 +268,10 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             <button type="button" className="text-brand" title="Schedule" onClick={() => setLaterOpen((v) => !v)}>
               <IconClock />
             </button>
-            {laterOpen ? (
-              <Button type="submit" variant="outline" pill disabled={create.isPending}>
-                {create.isPending ? <Spinner className="h-4 w-4" /> : null}
-                Send
-              </Button>
-            ) : (
-              <Button type="button" variant="outline" pill onClick={() => setLaterOpen(true)}>
-                Send Later
-              </Button>
-            )}
+            <Button type="submit" variant="outline" pill disabled={create.isPending}>
+              {create.isPending ? <Spinner className="h-4 w-4" /> : null}
+              Send
+            </Button>
             {laterOpen ? (
               <div className="absolute right-0 top-12 z-10 w-[320px] rounded-xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                 <h3 className="mb-3 text-sm font-semibold">Send Later</h3>
@@ -282,7 +287,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                     <CalendarIcon />
                   </span>
                 </label>
-                {errors.startAt ? <p className="mt-1 text-xs text-danger">{errors.startAt}</p> : null}
                 <div className="mt-3 space-y-1">
                   {laterPresets().map((preset) => (
                     <button
@@ -299,7 +303,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                   <button type="button" className="text-sm text-ink" onClick={() => setLaterOpen(false)}>
                     Cancel
                   </button>
-                  <Button type="submit" variant="outline" pill size="sm" disabled={create.isPending}>
+                  <Button type="button" variant="outline" pill size="sm" onClick={() => setLaterOpen(false)}>
                     Done
                   </Button>
                 </div>
@@ -380,8 +384,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             />
           </div>
         </div>
-        {errors.leads ? <p className="mt-2 text-xs text-danger">{errors.leads}</p> : null}
-        {errors.subject ? <p className="mt-2 text-xs text-danger">{errors.subject}</p> : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-10 text-sm text-muted">
           <label className="inline-flex items-center gap-3">
@@ -406,8 +408,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             />
           </label>
         </div>
-        {errors.delaySec ? <p className="mt-1 text-xs text-danger">{errors.delaySec}</p> : null}
-        {errors.hourlyLimit ? <p className="mt-1 text-xs text-danger">{errors.hourlyLimit}</p> : null}
 
         <div className="mt-5 rounded-2xl bg-[#fafafa] px-5 pb-5 pt-4">
           <EditorToolbar />
@@ -418,8 +418,6 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             className="mt-3 min-h-65 w-full resize-y border-0 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
           />
         </div>
-        {errors.body ? <p className="mt-2 text-xs text-danger">{errors.body}</p> : null}
-        {formError ? <p className="mt-3 text-sm text-danger">{formError}</p> : null}
         {detected ? (
           <p className="mt-3 text-sm text-muted">
             <span className="font-semibold text-brand">{detected.emails.length}</span> email
