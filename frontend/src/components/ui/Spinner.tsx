@@ -1,9 +1,48 @@
-export function Spinner({ className = "h-5 w-5" }: { className?: string }) {
+import "./cube-loader.css";
+
+function CubeLoader() {
   return (
-    <svg className={`animate-spin text-brand ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-    </svg>
+    <div className="cube-loader">
+      <div className="box box0">
+        <div />
+      </div>
+      <div className="box box1">
+        <div />
+      </div>
+      <div className="box box2">
+        <div />
+      </div>
+      <div className="box box3">
+        <div />
+      </div>
+      <div className="box box4">
+        <div />
+      </div>
+      <div className="box box5">
+        <div />
+      </div>
+      <div className="box box6">
+        <div />
+      </div>
+      <div className="box box7">
+        <div />
+      </div>
+      <div className="ground">
+        <div />
+      </div>
+    </div>
+  );
+}
+
+export function Spinner({ className = "h-5 w-5" }: { className?: string }) {
+  const large = /\bh-8\b|\bh-10\b|\bh-12\b/.test(className);
+  return (
+    <span
+      className={`cube-loader-frame ${large ? "cube-loader-frame--lg" : "cube-loader-frame--sm"}`}
+      aria-hidden
+    >
+      <CubeLoader />
+    </span>
   );
 }
 
