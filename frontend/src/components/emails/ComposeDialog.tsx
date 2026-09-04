@@ -84,16 +84,30 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     () => (paste.trim() ? parseLeadsPreview(paste, "leads.txt") : null),
     [paste],
   );
-  const pastePreview = useMemo(() => {
-    const text = [paste, draft].filter((part) => part.trim()).join("\n");
-    return text.trim() ? parseLeadsPreview(text, "leads.txt") : null;
-  }, [draft, paste]);
-  const detected = file ? preview : pastePreview;
+  const detected = useMemo(() => {
+    const typed = [paste, draft].filter((part) => part.trim()).join("\n");
+    if (file && preview) {
+      if (!typed.trim()) return preview;
+      return parseLeadsPreview(`${preview.emails.join("\n")}\n${typed}`, "leads.txt");
+    }
+    return typed.trim() ? parseLeadsPreview(typed, "leads.txt") : null;
+  }, [draft, file, paste, preview]);
+
+  const clearFileUpload = () => {
+    setFile(null);
+    setPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
 
   const appendCommitted = (tokens: string[]) => {
     const cleaned = tokens.map((token) => token.trim()).filter(Boolean);
     if (!cleaned.length) return;
-    setPaste((prev) => (prev.trim() ? `${prev.trim()}\n${cleaned.join("\n")}` : cleaned.join("\n")));
+    const fromFile = file && preview ? preview.emails.join("\n") : "";
+    setPaste((prev) => {
+      const base = [fromFile, prev.trim()].filter(Boolean).join("\n");
+      return base ? `${base}\n${cleaned.join("\n")}` : cleaned.join("\n");
+    });
+    if (file) clearFileUpload();
   };
 
   const commitDraftValue = (value: string) => {
@@ -207,8 +221,13 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
     form.append("delayMs", String(Math.round(delaySec * 1000)));
     form.append("hourlyLimit", String(hourlyLimit));
     if (senderId) form.append("senderId", senderId);
-    if (file) form.append("file", file);
-    else form.append("leadsText", [paste, draft].filter((part) => part.trim()).join("\n"));
+    const typedLeads = [paste, draft].filter((part) => part.trim()).join("\n");
+    if (file && !typedLeads) {
+      form.append("file", file);
+    } else {
+      const fromFile = file && preview ? preview.emails.join("\n") : "";
+      form.append("leadsText", [fromFile, typedLeads].filter((part) => part.trim()).join("\n"));
+    }
     create.mutate(form);
   };
 
@@ -332,19 +351,22 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                   {email}
                 </button>
               ))}
-              {!file ? (
-                <input
-                  ref={toInputRef}
-                  value={draft}
-                  onChange={onToChange}
-                  onKeyDown={onToKeyDown}
-                  onBlur={() => commitDraftValue(draft)}
-                  placeholder={committedEmails.length ? "Add another email" : "recipient@example.com"}
-                  className="h-8 min-w-48 flex-1 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
-                />
-              ) : extra > 0 ? (
+              {extra > 0 ? (
                 <span className="rounded-full border border-brand/50 px-2.5 py-0.5 text-xs font-medium text-brand">+{extra}</span>
               ) : null}
+              <input
+                ref={toInputRef}
+                value={draft}
+                onChange={onToChange}
+                onKeyDown={onToKeyDown}
+                onBlur={() => commitDraftValue(draft)}
+                placeholder={
+                  (file && preview && preview.emails.length) || committedEmails.length
+                    ? "Add another email"
+                    : "recipient@example.com"
+                }
+                className="h-8 min-w-48 flex-1 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
+              />
             </div>
             <button
               type="button"
