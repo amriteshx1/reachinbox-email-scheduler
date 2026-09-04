@@ -7,7 +7,7 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-4">
-      <div className="w-full max-w-[496px] rounded-[10px] border border-line bg-white px-14 py-12 shadow-[0_2px_12px_rgba(16,16,16,0.06)]">
+      <div className="w-full max-w-124 rounded-[10px] border border-line bg-white px-14 py-12 shadow-[0_2px_12px_rgba(16,16,16,0.06)]">
         <h1 className="mb-8 text-center text-[28px] font-bold leading-none tracking-tight text-ink">Login</h1>
         {backendDown ? (
           <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-danger">
@@ -40,6 +40,9 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
         <Button variant="primary" className="mt-7 h-12 w-full rounded-lg text-sm font-semibold" onClick={startGoogle}>
           Login
         </Button>
+        <p className="mt-4 text-center text-xs leading-relaxed text-muted">
+          Use Login with Google to sign in. Email and password are shown to match the design; this app uses Google OAuth only.
+        </p>
       </div>
     </div>
   );
