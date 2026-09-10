@@ -34,7 +34,7 @@ export function BodyEditor({ value, onChange }: Props) {
   if (!editor) {
     return (
       <div className="compose-body">
-        <div className="mx-auto h-10 w-[272px] rounded-full bg-white shadow-[0_1px_8px_rgba(0,0,0,0.06)]" />
+        <div className="mx-auto h-10 w-68 rounded-full bg-white shadow-[0_1px_8px_rgba(0,0,0,0.06)]" />
         <div className="mt-3 min-h-65" />
       </div>
     );
