@@ -39,7 +39,7 @@ export function Sidebar({
 
   return (
     <aside className="flex w-65 shrink-0 flex-col border-r border-line bg-white px-4 py-5">
-      <div className="px-1 text-[22px] font-extrabold leading-none tracking-tight text-ink">ONE</div>
+      <div className="px-1 text-[22px] font-extrabold leading-none tracking-tight text-ink">ReachInbox</div>
 
       <div className="relative mt-5">
         <button
