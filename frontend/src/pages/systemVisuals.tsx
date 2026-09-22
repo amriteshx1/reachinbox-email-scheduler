@@ -23,7 +23,7 @@ export function ExecutionPlane() {
         <span className="font-mono text-[11px] text-muted">Not live state</span>
       </figcaption>
       <div className="flex justify-center overflow-x-auto px-4 py-6">
-        <svg viewBox="0 0 520 700" className="h-auto w-[520px] max-w-full" aria-hidden>
+        <svg viewBox="0 0 520 700" className="h-auto w-130 max-w-full" aria-hidden>
           <text x="20" y="28" fill="#8d978f" fontSize="12" fontFamily={mono}>
             Hour window
           </text>
