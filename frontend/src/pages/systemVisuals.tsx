@@ -23,7 +23,7 @@ export function ExecutionPlane() {
         <span className="font-mono text-[11px] text-muted">Not live state</span>
       </figcaption>
       <div className="flex justify-center overflow-x-auto px-4 py-6">
-        <svg viewBox="0 0 520 700" className="h-auto w-[520px] max-w-full" aria-hidden>
+        <svg viewBox="0 0 520 700" className="h-auto w-130 max-w-full" aria-hidden>
           <text x="20" y="28" fill="#8d978f" fontSize="12" fontFamily={mono}>
             Hour window
           </text>
@@ -212,7 +212,7 @@ export function ConstraintTimeline() {
   return (
     <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#141a17]">
       <div className="flex justify-center px-4 py-6">
-      <svg viewBox="0 0 840 300" className="h-auto w-[840px] max-w-full" role="img" aria-label="Jobs packed into an hour, with overflow moved to the next hour">
+      <svg viewBox="0 0 840 300" className="h-auto w-210 max-w-full" role="img" aria-label="Jobs packed into an hour, with overflow moved to the next hour">
         <text x="24" y="36" fill="#8d978f" fontSize="12" fontFamily={mono}>
           Current hour
         </text>
@@ -288,7 +288,7 @@ export function CoordinationMap() {
   return (
     <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#141a17]">
       <div className="flex justify-center px-4 py-6">
-      <svg viewBox="0 0 760 300" className="h-auto w-[760px] max-w-full" role="img" aria-label="Workers sharing one Redis rate gate">
+      <svg viewBox="0 0 760 300" className="h-auto w-190 max-w-full" role="img" aria-label="Workers sharing one Redis rate gate">
         {["Worker A", "Worker B", "Worker C"].map((name, i) => (
           <g key={name}>
             <rect x="24" y={28 + i * 72} width="150" height="52" rx="8" fill="#101412" stroke="#24302a" />
@@ -341,7 +341,7 @@ export function RestartMap() {
   return (
     <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#141a17]">
       <div className="flex justify-center px-4 py-6">
-      <svg viewBox="0 0 760 300" className="h-auto w-[760px] max-w-full" role="img" aria-label="Schedule before a worker restart and after reconciliation">
+      <svg viewBox="0 0 760 300" className="h-auto w-190 max-w-full" role="img" aria-label="Schedule before a worker restart and after reconciliation">
         <text x="24" y="32" fill="#8d978f" fontSize="12" fontFamily={mono}>
           Before restart
         </text>
