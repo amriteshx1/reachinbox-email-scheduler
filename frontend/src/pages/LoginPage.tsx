@@ -15,8 +15,8 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
   };
 
   return (
-    <div className="sys min-h-screen">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+    <div className="sys flex min-h-screen flex-col">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4">
         <Link to="/" className="text-[1.35rem] text-ink">
           <Wordmark />
         </Link>
@@ -25,7 +25,7 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
         </Link>
       </header>
 
-      <main className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-10 lg:grid-cols-2 lg:py-20">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 content-center items-center gap-10 px-5 py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.9fr)_minmax(280px,1fr)] lg:gap-12 lg:py-16">
         <div>
           <h1 className="max-w-[12ch] font-sans text-4xl font-semibold leading-[1.15] tracking-[-0.03em] text-[#f3f6f4] sm:text-5xl">
             Reliable scheduling. Controlled execution.
@@ -33,10 +33,11 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
           <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-muted">
             Persistent jobs, a shared rate gate, and a receipt so a crash does not send twice.
           </p>
-          <LoginTrace />
         </div>
 
-        <div className="w-full max-w-md justify-self-start rounded-2xl border border-line bg-[#141a17] px-6 py-7 lg:justify-self-end">
+        <LoginTrace />
+
+        <div className="w-full rounded-2xl border border-line bg-[#141a17] px-6 py-7">
           <h2 className="font-sans text-lg font-semibold text-[#f3f6f4]">Continue to ReachInbox</h2>
           {backendDown ? (
             <p className="mt-4 rounded-lg bg-red-950/70 px-3 py-2 text-sm text-red-300" role="alert">

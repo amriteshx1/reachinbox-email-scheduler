@@ -74,26 +74,18 @@ const stores = [
   },
 ];
 
-const primitives = [
-  { name: "BullMQ", role: "Delayed jobs" },
-  { name: "Redis", role: "Atomic coordination" },
-  { name: "PostgreSQL", role: "Canonical state" },
-  { name: "Worker pool", role: "Configurable concurrency" },
-  { name: "Rate limiter", role: "Sender and global caps" },
-  { name: "Scheduler", role: "Capacity-aware slots" },
-  { name: "Elasticsearch", role: "Derived search" },
-  { name: "SMTP", role: "External delivery boundary" },
-];
-
-const architecture = [
-  { name: "Client", role: "Compose a campaign, list scheduled and sent mail, search." },
-  { name: "Express", role: "Session, campaign create, then enqueue. The request does not wait for SMTP." },
-  { name: "PostgreSQL", role: "Canonical campaign, email, and sender rows." },
-  { name: "BullMQ", role: "email-send, search-index, and slack-notify. The send job id is send-<emailId>." },
-  { name: "Redis", role: "Atomic permit, hourly counters, minimum gap, SMTP receipt, sessions." },
-  { name: "Workers", role: "Concurrency is a setting, default 5. It is not an autoscaler." },
-  { name: "Ethereal", role: "SMTP delivery boundary. A test inbox, not a production mail provider." },
-  { name: "Slack", role: "One notice per sender per UTC hour when that hour's cap is hit." },
+const reference = [
+  { name: "Client", role: "Compose, the scheduled and sent lists, and search. The browser never calls SMTP." },
+  { name: "Express", role: "Session and campaign create. It writes the rows, enqueues the jobs, and returns." },
+  { name: "PostgreSQL", role: "Canonical campaigns, emails, and senders. Scheduling and restart recovery read this record." },
+  { name: "Scheduler", role: "Gives each address its own time from the delay and the hourly caps, then stores that time on the row." },
+  { name: "BullMQ", role: "The delayed job for that time, id send-<emailId>. The wait is the schedule. There is no cron sweep." },
+  { name: "Redis", role: "The shared state workers agree on: permits, hourly counters, the send gap, and the SMTP receipt." },
+  { name: "Rate limiter", role: "The rules on that Redis state. Defaults are 2000 ms apart, 200 per sender each hour, and 1000 globally." },
+  { name: "Worker pool", role: "Runs those jobs up to a configured concurrency, default 5. It does not add machines." },
+  { name: "SMTP", role: "The delivery boundary. Ethereal is the test inbox that accepts the message." },
+  { name: "Slack", role: "One notice per sender per UTC hour when the rate limiter finds that hour is full." },
+  { name: "Elasticsearch", role: "Search projected from the email row. A failed index does not block the send." },
 ];
 
 export function LandingPage() {
@@ -121,43 +113,30 @@ export function LandingPage() {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl items-start gap-10 px-5 py-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(460px,1.05fr)] lg:py-16">
-          <div className="lg:pt-6">
-            <h1 className="max-w-[16ch] font-sans text-4xl font-semibold leading-[1.12] tracking-[-0.03em] text-[#f3f6f4] sm:text-5xl">
-              Scheduling is easy. Coordinating execution is not.
+        <section className="mx-auto max-w-6xl px-5 py-16">
+          <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1.15fr)_22rem] lg:gap-x-20">
+            <h1 className="font-sans text-4xl font-semibold leading-[1.17] tracking-[-0.03em] text-[#f3f6f4] sm:text-5xl">
+              Distributed scheduling for reliable email delivery.
             </h1>
-            <p className="mt-5 max-w-[54ch] text-base leading-relaxed text-muted">
-              ReachInbox schedules email work as persistent background jobs, coordinates execution across workers with shared Redis state, enforces sender and global rate limits atomically, and protects delivery with idempotent processing and restart recovery.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link
-                to="/dashboard"
-                className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
-              >
-                Open Dashboard
-              </Link>
-              <a href="#execution" className="text-sm font-medium text-[#d7e4dc] underline-offset-4 hover:underline">
-                How execution works
-              </a>
+            <div>
+              <p className="text-base leading-relaxed text-muted">
+                Schedule email as delayed work, instead of sending when a request arrives.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <Link
+                  to="/dashboard"
+                  className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
+                >
+                  Open Dashboard
+                </Link>
+                <a href="#execution" className="text-sm font-medium text-[#d7e4dc] underline-offset-4 hover:underline">
+                  How execution works
+                </a>
+              </div>
             </div>
           </div>
-          <ExecutionPlane />
-        </section>
-
-        <section id="architecture" className="scroll-mt-16 border-t border-line">
-          <div className="mx-auto max-w-6xl px-5 py-16">
-            <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">Where each piece sits</h2>
-            <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-muted">
-              The email is the workload. The work is a delayed job with shared constraints. Express returns after the rows and the jobs exist. Delivery happens later, on a worker.
-            </p>
-            <dl className="mt-8 divide-y divide-line border-y border-line">
-              {architecture.map((item) => (
-                <div key={item.name} className="grid gap-1 py-3 sm:grid-cols-[180px_1fr] sm:gap-6">
-                  <dt className="font-mono text-[13px] text-[#d7efe0]">{item.name}</dt>
-                  <dd className="text-sm leading-relaxed text-muted">{item.role}</dd>
-                </div>
-              ))}
-            </dl>
+          <div className="mt-12 lg:mt-16">
+            <ExecutionPlane />
           </div>
         </section>
 
@@ -266,13 +245,20 @@ export function LandingPage() {
                 </article>
               ))}
             </div>
+          </div>
+        </section>
 
-            <h3 className="mt-12 font-sans text-xl font-semibold tracking-[-0.02em]">System primitives</h3>
-            <dl className="mt-6 grid gap-px overflow-hidden rounded-xl border border-line sm:grid-cols-2 lg:grid-cols-4">
-              {primitives.map((item) => (
-                <div key={item.name} className="bg-[#141a17] px-4 py-3">
-                  <dt className="font-mono text-[12px] text-[#d7efe0]">{item.name}</dt>
-                  <dd className="mt-1 text-sm text-muted">{item.role}</dd>
+        <section id="architecture" className="scroll-mt-16 border-t border-line">
+          <div className="mx-auto max-w-6xl px-5 py-16">
+            <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">System architecture</h2>
+            <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-muted">
+              Each piece is listed once. The rate limiter is the rules on Redis, not a second store. The scheduler writes times. BullMQ waits until those times.
+            </p>
+            <dl className="mt-8 overflow-hidden rounded-xl border border-line">
+              {reference.map((item) => (
+                <div key={item.name} className="grid gap-1 border-t border-line px-5 py-4 first:border-t-0 sm:grid-cols-[11.5rem_1fr] sm:items-baseline sm:gap-8">
+                  <dt className="font-mono text-[13px] text-[#d7efe0]">{item.name}</dt>
+                  <dd className="text-sm leading-relaxed text-muted">{item.role}</dd>
                 </div>
               ))}
             </dl>
