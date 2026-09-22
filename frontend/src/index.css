@@ -2,19 +2,19 @@
 
 @theme {
   --font-sans: "Inter", "Open Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mark: "IBM Plex Sans", "Inter", ui-sans-serif, sans-serif;
+  --font-mark: "Syne", "IBM Plex Sans", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --color-ink: #111111;
-  --color-muted: #8a8a8a;
-  --color-page: #ffffff;
-  --color-line: #ececec;
-  --color-wash: #f4f7f5;
-  --color-mint: #e5f6ec;
+  --color-ink: #e7ece8;
+  --color-muted: #8d978f;
+  --color-page: #101412;
+  --color-line: #24302a;
+  --color-wash: #171d1a;
+  --color-mint: #163028;
   --color-brand: #00a63e;
-  --color-brand-hover: #009636;
-  --color-progress: #c47a3a;
-  --color-badge: #ffe4c3;
-  --color-danger: #ef4444;
+  --color-brand-hover: #14b84f;
+  --color-progress: #e0b07a;
+  --color-badge: #3a2a1c;
+  --color-danger: #f07171;
 }
 
 html,
@@ -27,7 +27,7 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-ink);
-  background: #ffffff;
+  background: #101412;
   -webkit-font-smoothing: antialiased;
 }
 
