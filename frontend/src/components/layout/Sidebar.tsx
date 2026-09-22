@@ -39,14 +39,14 @@ export function Sidebar({
     .toUpperCase();
 
   return (
-    <aside className="flex w-65 shrink-0 flex-col border-r border-line bg-white px-4 py-5">
+    <aside className="flex w-65 shrink-0 flex-col border-r border-line bg-page px-4 py-5">
       <Wordmark className="px-1 text-[22px] leading-none text-ink" />
 
       <div className="relative mt-5">
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="flex w-full items-center gap-2.5 rounded-[14px] bg-wash px-2.5 py-2.5 text-left hover:bg-[#eef2ef]"
+          className="flex w-full items-center gap-2.5 rounded-[14px] bg-wash px-2.5 py-2.5 text-left hover:bg-mint"
         >
           {user.avatarUrl ? (
             <img src={user.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
@@ -59,25 +59,25 @@ export function Sidebar({
             <div className="truncate text-sm font-semibold leading-tight">{user.name || "Account"}</div>
             <div className="truncate text-[11px] leading-tight text-muted">{user.email}</div>
           </div>
-          <span className="text-[#b0b0b0]">
+          <span className="text-muted">
             <IconChevron />
           </span>
         </button>
         {menuOpen ? (
-          <div className="absolute z-20 mt-2 w-full rounded-xl border border-line bg-white p-1 shadow-lg">
+          <div className="absolute z-20 mt-2 w-full rounded-xl border border-line bg-wash p-1 shadow-lg">
             {slackConnected ? (
-              <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-zinc-50" onClick={onDisconnectSlack}>
+              <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-mint" onClick={onDisconnectSlack}>
                 <IconSlack /> Disconnect Slack
               </button>
             ) : (
-              <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-zinc-50" onClick={onSlack}>
+              <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-mint" onClick={onSlack}>
                 <IconSlack /> Connect Slack
               </button>
             )}
-            <a className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-zinc-50" href={bullBoardUrl()} target="_blank" rel="noreferrer">
+            <a className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-mint" href={bullBoardUrl()} target="_blank" rel="noreferrer">
               <IconQueues /> Queue dashboard
             </a>
-            <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-zinc-50" onClick={onLogout}>
+            <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-mint" onClick={onLogout}>
               <IconLogout /> Logout
             </button>
           </div>
@@ -88,7 +88,7 @@ export function Sidebar({
         Compose
       </Button>
 
-      <p className="mt-7 mb-1.5 px-3 text-[11px] font-medium tracking-[0.16em] text-[#b4b4b4]">CORE</p>
+      <p className="mt-7 mb-1.5 px-3 text-[11px] font-medium text-muted">Core</p>
       <nav className="space-y-0.5">
         <NavItem
           active={tab === "scheduled"}
@@ -136,10 +136,10 @@ function NavItem({
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${
-        active ? "bg-mint font-medium text-brand" : "text-ink hover:bg-zinc-50"
+        active ? "bg-mint font-medium text-brand" : "text-ink hover:bg-mint"
       }`}
     >
-      <span className={active ? "text-brand" : "text-zinc-500"}>{icon}</span>
+      <span className={active ? "text-brand" : "text-muted"}>{icon}</span>
       <span className="flex-1 text-left">{label}</span>
       <span className={`text-xs ${active ? "text-brand" : "text-muted"}`}>{count}</span>
     </button>
