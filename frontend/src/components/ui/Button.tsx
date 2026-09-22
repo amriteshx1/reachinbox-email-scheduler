@@ -4,11 +4,11 @@ type Variant = "primary" | "secondary" | "outline" | "ghost" | "google" | "dange
 
 const variants: Record<Variant, string> = {
   primary: "bg-brand text-white hover:bg-brand-hover disabled:bg-brand/50",
-  secondary: "bg-white text-ink border border-line hover:bg-zinc-50 disabled:opacity-50",
-  outline: "bg-white text-brand border border-brand hover:bg-mint disabled:opacity-50",
-  ghost: "bg-transparent text-ink hover:bg-zinc-100 disabled:opacity-40",
-  google: "bg-mint text-ink hover:bg-[#d7f0e0] disabled:opacity-50",
-  danger: "bg-white text-danger border border-red-200 hover:bg-red-50",
+  secondary: "bg-wash text-ink border border-line hover:bg-mint disabled:opacity-50",
+  outline: "bg-transparent text-brand border border-brand hover:bg-mint disabled:opacity-50",
+  ghost: "bg-transparent text-ink hover:bg-wash disabled:opacity-40",
+  google: "bg-mint text-ink hover:bg-[#1e4034] disabled:opacity-50",
+  danger: "bg-transparent text-danger border border-red-900/60 hover:bg-red-950/40",
 };
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
