@@ -294,11 +294,11 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
   const extra = compact ? Math.max(0, badgeEmails.length - pillEmails.length) : 0;
 
   return (
-    <div className="fixed inset-0 z-40 overflow-y-auto bg-white">
+    <div className="fixed inset-0 z-40 overflow-y-auto bg-page">
       <form id="compose-form" className="mx-auto min-h-full max-w-5xl px-8 py-5" onSubmit={onSubmit}>
         <header className="mb-2 flex items-center justify-between border-b border-line pb-4">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={close} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-100" aria-label="Back">
+            <button type="button" onClick={close} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-wash" aria-label="Back">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
@@ -322,7 +322,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
               Send
             </Button>
             {laterOpen ? (
-              <div className="absolute right-0 top-12 z-10 w-[320px] rounded-xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+              <div className="absolute right-0 top-12 z-10 w-[320px] rounded-xl border border-line bg-wash p-4 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
                 <h3 className="mb-3 text-sm font-semibold">Send Later</h3>
                 <label className="relative block">
                   <span className="sr-only">Pick date and time</span>
@@ -330,9 +330,9 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                     type="datetime-local"
                     value={startAt}
                     onChange={(e) => setStartAt(e.target.value)}
-                    className="h-10 w-full rounded-lg border-0 bg-wash px-3 pr-9 text-sm outline-none placeholder:text-[#9a9a9a] focus:ring-2 focus:ring-brand/20"
+                    className="h-10 w-full rounded-lg border-0 bg-page px-3 pr-9 text-sm text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand/20"
                   />
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9a9a9a]">
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">
                     <CalendarIcon />
                   </span>
                 </label>
@@ -341,7 +341,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                     <button
                       key={preset.label}
                       type="button"
-                      className="block w-full rounded-md px-1 py-1.5 text-left text-sm text-ink hover:bg-zinc-50"
+                      className="block w-full rounded-md px-1 py-1.5 text-left text-sm text-ink hover:bg-page"
                       onClick={() => setStartAt(preset.value)}
                     >
                       {preset.label}
@@ -368,7 +368,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
               <select
                 value={selectedSenderId}
                 onChange={(e) => setSenderId(e.target.value)}
-                className="h-8 appearance-none rounded-full bg-[#f5f5f5] py-0 pl-3 pr-8 text-sm outline-none"
+                className="h-8 appearance-none rounded-full bg-wash py-0 pl-3 pr-8 text-sm text-ink outline-none"
                 disabled={sendersQuery.isPending}
               >
                 {senders.map((sender) => (
@@ -377,7 +377,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9a9a9a]">
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -408,7 +408,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
                 onChange={onToChange}
                 onKeyDown={onToKeyDown}
                 placeholder={badgeEmails.length ? "Add another email" : "recipient@example.com"}
-                className="h-8 min-w-48 flex-1 bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
+                className="h-8 min-w-48 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted"
               />
             </div>
             <button
@@ -427,7 +427,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Subject"
               maxLength={500}
-              className="h-8 w-full bg-transparent text-sm outline-none placeholder:text-[#b0b0b0]"
+              className="h-8 w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
             />
           </div>
         </div>
@@ -440,7 +440,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
               min={MIN_DELAY_SEC}
               value={delaySec}
               onChange={(e) => setDelaySec(Number(e.target.value))}
-              className="h-8 w-14 rounded-lg border-0 bg-[#f5f5f5] text-center text-sm outline-none focus:ring-2 focus:ring-brand/20"
+              className="h-8 w-14 rounded-lg border-0 bg-wash text-center text-sm text-ink outline-none focus:ring-2 focus:ring-brand/20"
             />
           </label>
           <label className="inline-flex items-center gap-3">
@@ -451,12 +451,12 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
               max={1000}
               value={hourlyLimit}
               onChange={(e) => setHourlyLimit(Number(e.target.value))}
-              className="h-8 w-14 rounded-lg border-0 bg-[#f5f5f5] text-center text-sm outline-none focus:ring-2 focus:ring-brand/20"
+              className="h-8 w-14 rounded-lg border-0 bg-wash text-center text-sm text-ink outline-none focus:ring-2 focus:ring-brand/20"
             />
           </label>
         </div>
 
-        <div className="mt-5 rounded-2xl bg-[#fafafa] px-5 pb-5 pt-4">
+        <div className="mt-5 rounded-2xl border border-line bg-wash px-5 pb-5 pt-4">
           <BodyEditor value={body} onChange={setBody} />
         </div>
         <p className="mt-3 text-sm text-muted">
