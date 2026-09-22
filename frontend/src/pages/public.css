@@ -1,0 +1,25 @@
+.sys {
+  background-color: #101412;
+  background-image:
+    linear-gradient(to right, rgba(232, 236, 233, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232, 236, 233, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color: #e7ece8;
+}
+
+.sys-muted {
+  color: #8b968e;
+}
+
+.sys-line {
+  border-color: #243028;
+}
+
+.sys-node {
+  border: 1px solid #2c3830;
+  background: rgba(16, 20, 18, 0.86);
+}
+
+.sys-pipe {
+  background: #00a63e;
+}
