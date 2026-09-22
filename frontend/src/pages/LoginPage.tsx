@@ -17,7 +17,7 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
   return (
     <div className="sys min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <Link to="/" className="text-[1.35rem] text-[#e7ece8]">
+        <Link to="/" className="text-[1.35rem] text-ink">
           <Wordmark />
         </Link>
         <Link to="/" className="text-sm text-[#c5cdc8] hover:text-white">
@@ -30,13 +30,13 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
           <h1 className="max-w-[12ch] font-sans text-4xl font-semibold leading-[1.15] tracking-[-0.03em] text-[#f3f6f4] sm:text-5xl">
             Reliable scheduling. Controlled execution.
           </h1>
-          <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-[#8d978f]">
+          <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-muted">
             Persistent jobs, a shared rate gate, and a receipt so a crash does not send twice.
           </p>
           <LoginTrace />
         </div>
 
-        <div className="w-full max-w-md justify-self-start rounded-2xl border border-[#24302a] bg-[#141a17] px-6 py-7 lg:justify-self-end">
+        <div className="w-full max-w-md justify-self-start rounded-2xl border border-line bg-[#141a17] px-6 py-7 lg:justify-self-end">
           <h2 className="font-sans text-lg font-semibold text-[#f3f6f4]">Continue to ReachInbox</h2>
           {backendDown ? (
             <p className="mt-4 rounded-lg bg-red-950/70 px-3 py-2 text-sm text-red-300" role="alert">
