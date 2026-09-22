@@ -34,7 +34,7 @@ export function BodyEditor({ value, onChange }: Props) {
   if (!editor) {
     return (
       <div className="compose-body">
-        <div className="mx-auto h-10 w-68 rounded-full bg-white shadow-[0_1px_8px_rgba(0,0,0,0.06)]" />
+        <div className="mx-auto h-10 w-68 rounded-full border border-line bg-page" />
         <div className="mt-3 min-h-65" />
       </div>
     );
@@ -52,7 +52,7 @@ export function BodyEditor({ value, onChange }: Props) {
 
 function EditorToolbar({ editor }: { editor: Editor }) {
   return (
-    <div className="mx-auto flex h-10 w-max items-center gap-3 rounded-full bg-white px-4 text-muted shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+    <div className="mx-auto flex h-10 w-max items-center gap-3 rounded-full border border-line bg-page px-4 text-muted">
       <ToolButton
         label="Bold"
         active={editor.isActive("bold")}
