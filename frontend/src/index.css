@@ -2,6 +2,8 @@
 
 @theme {
   --font-sans: "Inter", "Open Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mark: "IBM Plex Sans", "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --color-ink: #111111;
   --color-muted: #8a8a8a;
   --color-page: #ffffff;
