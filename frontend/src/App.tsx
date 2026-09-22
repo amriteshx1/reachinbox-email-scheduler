@@ -2,17 +2,25 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import { PageSpinner } from "./components/ui/Spinner";
 import { DashboardPage } from "./pages/DashboardPage";
+import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 
 export function App() {
   return (
     <Routes>
+      <Route path="/" element={<HomeGate />} />
       <Route path="/login" element={<LoginGate />} />
       <Route path="/dashboard" element={<ProtectedDashboard />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
+}
+
+function HomeGate() {
+  const { user, loading } = useAuth();
+  if (loading) return <PageSpinner />;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <LandingPage />;
 }
 
 function LoginGate() {
