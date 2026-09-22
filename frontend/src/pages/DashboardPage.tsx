@@ -118,7 +118,7 @@ export function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-page">
       <Sidebar
         user={user}
         tab={tab}
