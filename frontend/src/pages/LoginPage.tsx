@@ -37,7 +37,7 @@ export function LoginPage({ backendDown }: { backendDown?: boolean }) {
           ) : null}
           <Button
             variant="secondary"
-            className="h-12 w-full border-[#2c3830] bg-white text-sm font-medium text-ink hover:bg-[#f4f7f5]"
+            className="h-12 w-full border-[#2c3830] bg-white text-sm font-medium text-ink hover:bg-wash"
             onClick={startGoogle}
             disabled={signingIn || backendDown}
           >
