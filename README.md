@@ -1,6 +1,6 @@
-# reachinbox-email-scheduler
+# ReachInbox
 
-Full-stack email scheduler and dashboard for the Outbox Labs / ReachInbox assignment: accept campaign send requests, store them in PostgreSQL, schedule with **BullMQ delayed jobs** (no cron), send through **Ethereal SMTP**, and operate them from a React dashboard.
+Full-stack email scheduler: accept campaign send requests, store them in PostgreSQL, schedule with **BullMQ delayed jobs** (no cron), send through **Ethereal SMTP**, and operate them from a React dashboard.
 
 Scheduling is not done with OS cron, `node-cron`, Agenda, or interval polling of the database. Send times live in Postgres (`email.scheduledAt`) and as BullMQ delayed jobs in Redis.
 
@@ -26,7 +26,7 @@ docker compose up -d
 cd backend && npx prisma migrate deploy && cd ..
 ```
 
-Google OAuth must be real (not mocked). For local login, register `http://localhost:3001/auth/google/callback` as the authorized redirect URI and put the same URL in `GOOGLE_CALLBACK_URL`. Slack OAuth is optional; if `SLACK_CLIENT_ID` / `SLACK_CLIENT_SECRET` are empty, Connect Slack is disabled and rate-limit hits do not notify.
+Sign-in is Google OAuth. For local login, register `http://localhost:3001/auth/google/callback` as the authorized redirect URI and put the same URL in `GOOGLE_CALLBACK_URL`. Slack OAuth is optional; if `SLACK_CLIENT_ID` / `SLACK_CLIENT_SECRET` are empty, Connect Slack is disabled and rate-limit hits do not notify.
 
 Run three processes:
 
@@ -66,9 +66,9 @@ Vite React (Tailwind)  --cookie session-->  Express API
 - **Backend:** TypeScript, Express, Prisma, PostgreSQL.
 - **Queues:** three BullMQ queues on Redis — `email-send`, `search-index`, `slack-notify`. Job ids are stable (`send-<emailId>`, Slack notify per user/sender/UTC hour).
 - **Search:** emails are indexed to Elasticsearch (`emails`). List/search APIs fall back to Postgres if ES is down; sending does not depend on ES.
-- **Auth:** real Google OAuth; session cookie `sid` in Redis. Locally the cookie is `httpOnly`, `SameSite=Lax`, `secure=false`. When `NODE_ENV=production` or `FRONTEND_URL` is public HTTPS, it is `SameSite=None; Secure` so a separate SPA origin can make credentialed API calls. CORS allows only `FRONTEND_URL` with `credentials: true`.
+- **Auth:** Google OAuth; session cookie `sid` in Redis. Locally the cookie is `httpOnly`, `SameSite=Lax`, `secure=false`. When `NODE_ENV=production` or `FRONTEND_URL` is public HTTPS, it is `SameSite=None; Secure` so a separate SPA origin can make credentialed API calls. CORS allows only `FRONTEND_URL` with `credentials: true`.
 
-## Implemented features
+## Features
 
 - Google login, dashboard redirect, name / email / avatar, logout.
 - Compose campaign: subject, body, CSV or pasted leads (count shown), start time, delay between emails, hourly limit, sender picker. `POST /api/campaigns`.
@@ -98,7 +98,7 @@ This is **not** BullMQ’s built-in queue limiter. That limiter is process/queue
 2. **Send time (`tryAcquireSendPermit`):** a Lua script atomically checks (a) min delay vs `lastsend:<senderId>`, (b) hourly counters `rl:s:<senderId>:<utcHour>` and `rl:g:<utcHour>`, (c) a per-email `permit:<emailId>` so retries do not double-count. Safe across workers because the counters live in Redis, not memory.
 3. **Min delay miss:** `job.moveToDelayed(now + waitMs)` — the job is not failed or dropped.
 4. **Hourly cap hit:** `reserveNextSlot` finds the next UTC hour (up to 48 hours ahead) with capacity, updates `email.scheduledAt`, delays the same job, and enqueues a Slack notify job. Jobs are **not** dropped or marked failed for hitting the cap.
-5. **1000+ emails at the same start time:** they are packed across hours using delay + caps, then enqueued as delayed jobs. Ethereal is not expected to deliver thousands in a demo; the scheduler still accepts and spaces them.
+5. **1000+ emails at the same start time:** they are packed across hours using delay + caps, then enqueued as delayed jobs. Ethereal is a test SMTP sink, so the scheduler accepts and spaces large batches rather than trying to deliver thousands live.
 
 Trade-off: Redis counters expire (~3 hours) and are the live throttle; Postgres remains the source of truth for *which* emails exist and *when* they should send. After a Redis wipe, counters reset (more sends could pass in that hour) but jobs and rows are not lost if Postgres and BullMQ AOF are intact. Campaign create takes a short per-sender Redis lock to avoid two overlapping packs.
 
