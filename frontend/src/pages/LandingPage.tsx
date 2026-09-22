@@ -99,12 +99,12 @@ const architecture = [
 export function LandingPage() {
   return (
     <div className="sys min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-[#24302a] bg-[#101412]">
+      <header className="sticky top-0 z-20 border-b border-line bg-page">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3.5">
-          <Link to="/" className="text-[1.35rem] text-[#e7ece8]">
+          <Link to="/" className="text-[1.35rem] text-ink">
             <Wordmark />
           </Link>
-          <nav className="order-3 flex w-full flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#c5cdc8] md:order-none md:ml-auto md:w-auto">
+          <nav className="order-3 flex w-full flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#c5cdc8] md:order-0 md:ml-auto md:w-auto">
             <a href="#architecture" className="hover:text-white">Architecture</a>
             <a href="#execution" className="hover:text-white">Execution</a>
             <a href="#schedule" className="hover:text-white">Scheduling</a>
@@ -126,7 +126,7 @@ export function LandingPage() {
             <h1 className="max-w-[16ch] font-sans text-4xl font-semibold leading-[1.12] tracking-[-0.03em] text-[#f3f6f4] sm:text-5xl">
               Scheduling is easy. Coordinating execution is not.
             </h1>
-            <p className="mt-5 max-w-[54ch] text-base leading-relaxed text-[#8d978f]">
+            <p className="mt-5 max-w-[54ch] text-base leading-relaxed text-muted">
               ReachInbox schedules email work as persistent background jobs, coordinates execution across workers with shared Redis state, enforces sender and global rate limits atomically, and protects delivery with idempotent processing and restart recovery.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -144,63 +144,63 @@ export function LandingPage() {
           <ExecutionPlane />
         </section>
 
-        <section id="architecture" className="scroll-mt-16 border-t border-[#24302a]">
+        <section id="architecture" className="scroll-mt-16 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">Where each piece sits</h2>
-            <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-muted">
               The email is the workload. The work is a delayed job with shared constraints. Express returns after the rows and the jobs exist. Delivery happens later, on a worker.
             </p>
-            <dl className="mt-8 divide-y divide-[#24302a] border-y border-[#24302a]">
+            <dl className="mt-8 divide-y divide-line border-y border-line">
               {architecture.map((item) => (
                 <div key={item.name} className="grid gap-1 py-3 sm:grid-cols-[180px_1fr] sm:gap-6">
                   <dt className="font-mono text-[13px] text-[#d7efe0]">{item.name}</dt>
-                  <dd className="text-sm leading-relaxed text-[#8d978f]">{item.role}</dd>
+                  <dd className="text-sm leading-relaxed text-muted">{item.role}</dd>
                 </div>
               ))}
             </dl>
           </div>
         </section>
 
-        <section id="execution" className="scroll-mt-16 border-t border-[#24302a]">
+        <section id="execution" className="scroll-mt-16 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">How distributed execution works</h2>
-            <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[62ch] text-sm leading-relaxed text-muted">
               A send is not a request handler that calls SMTP. It is a persisted job that has to pass a shared gate, then survive a crash.
             </p>
-            <ol className="mt-8 max-w-3xl border-l border-[#24302a]">
+            <ol className="mt-8 max-w-3xl border-l border-line">
               {steps.map((step) => (
                 <li key={step.n} className="grid grid-cols-[3.5rem_1fr] gap-3 pb-7 pl-4">
                   <span className="font-mono text-[12px] text-brand">{step.n}</span>
                   <div>
                     <h3 className="font-sans text-base font-semibold">{step.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-[#8d978f]">{step.body}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted">{step.body}</p>
                   </div>
                 </li>
               ))}
             </ol>
 
             <h3 className="mt-4 font-sans text-xl font-semibold tracking-[-0.02em]">Multiple workers. One shared state.</h3>
-            <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-muted">
               These constraints cannot live independently inside each worker. They need shared coordination. ReachInbox reserves capacity with an atomic Redis script, so two workers cannot spend the same slot. If this email already holds a permit, a retry does not increment the hour again.
             </p>
             <CoordinationMap />
           </div>
         </section>
 
-        <section id="schedule" className="scroll-mt-16 border-t border-[#24302a]">
+        <section id="schedule" className="scroll-mt-16 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">Scheduling under constraints</h2>
-            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-muted">
               A campaign is not one timestamp copied onto every address. At create time, slots are packed from the start time using the delay, mail already scheduled for that sender, and mail already scheduled globally. Defaults are 2000 ms between sends, 200 emails per sender each UTC hour, and 1000 globally. When the current hour is saturated, work is not dropped. The scheduler reserves capacity in a future time bucket. If a worker later finds the hour already spent, it does the same thing to that job: move scheduledAt forward and delay the existing BullMQ job.
             </p>
             <ConstraintTimeline />
           </div>
         </section>
 
-        <section id="reliability" className="scroll-mt-16 border-t border-[#24302a]">
+        <section id="reliability" className="scroll-mt-16 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">Failure is part of the execution model</h2>
-            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-muted">
               Idempotent processing and duplicate-send protection cover races and crashes. This is recovery across failure windows. It is not a claim of exactly-once delivery.
             </p>
             <div className="mt-8 grid gap-8 lg:grid-cols-2">
@@ -227,63 +227,63 @@ export function LandingPage() {
                 ]}
               />
             </div>
-            <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-[#24302a] sm:grid-cols-2">
+            <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line sm:grid-cols-2">
               <div className="bg-[#141a17] px-4 py-4">
-                <h3 className="font-mono text-[12px] text-[#e0b07a]">Transient failure</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#8d978f]">
+                <h3 className="font-mono text-[12px] text-progress">Transient failure</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
                   An SMTP error with no receipt releases the hourly permit and throws, so BullMQ retries. The row goes back to scheduled until the attempt budget is spent.
                 </p>
               </div>
               <div className="bg-[#141a17] px-4 py-4">
-                <h3 className="font-mono text-[12px] text-[#f07171]">Permanent failure</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#8d978f]">
+                <h3 className="font-mono text-[12px] text-danger">Permanent failure</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
                   When the attempt budget is spent, the row is marked failed. Reconciliation does not scan failed rows, so that job is not put back on the queue.
                 </p>
               </div>
             </div>
 
             <h3 className="mt-12 font-sans text-xl font-semibold tracking-[-0.02em]">What happens during a restart</h3>
-            <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-muted">
               The schedule is the database row. The queue is restored from that row when the worker process comes back. This page does not perform reconciliation. The worker does, on startup.
             </p>
             <RestartMap />
           </div>
         </section>
 
-        <section id="state" className="border-t border-[#24302a]">
+        <section id="state" className="border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">State is split by responsibility</h2>
-            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-[#8d978f]">
+            <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-muted">
               Operational coordination and canonical business state have different requirements, so they are intentionally separated.
             </p>
-            <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-[#24302a] sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line sm:grid-cols-2 lg:grid-cols-4">
               {stores.map((store) => (
                 <article key={store.name} className="bg-[#141a17] px-4 py-4">
                   <store.icon size={16} strokeWidth={1.5} className="text-brand" aria-hidden />
                   <h3 className="mt-3 font-mono text-[13px] text-[#d7efe0]">{store.name}</h3>
-                  <p className="mt-1 text-sm text-[#e7ece8]">{store.role}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-[#8d978f]">{store.body}</p>
+                  <p className="mt-1 text-sm text-ink">{store.role}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{store.body}</p>
                 </article>
               ))}
             </div>
 
             <h3 className="mt-12 font-sans text-xl font-semibold tracking-[-0.02em]">System primitives</h3>
-            <dl className="mt-6 grid gap-px overflow-hidden rounded-xl border border-[#24302a] sm:grid-cols-2 lg:grid-cols-4">
+            <dl className="mt-6 grid gap-px overflow-hidden rounded-xl border border-line sm:grid-cols-2 lg:grid-cols-4">
               {primitives.map((item) => (
                 <div key={item.name} className="bg-[#141a17] px-4 py-3">
                   <dt className="font-mono text-[12px] text-[#d7efe0]">{item.name}</dt>
-                  <dd className="mt-1 text-sm text-[#8d978f]">{item.role}</dd>
+                  <dd className="mt-1 text-sm text-muted">{item.role}</dd>
                 </div>
               ))}
             </dl>
           </div>
         </section>
 
-        <section className="border-t border-[#24302a]">
+        <section className="border-t border-line">
           <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-16 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="font-sans text-2xl font-semibold tracking-[-0.02em]">Open the scheduler.</h2>
-              <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-[#8d978f]">
+              <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-muted">
                 Create a campaign and watch rows move from scheduled to sent. The queue, the caps, and the receipt are the path this page describes.
               </p>
             </div>
@@ -297,9 +297,9 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-[#24302a]">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-sm text-[#8d978f]">
-          <Wordmark className="text-lg text-[#e7ece8]" />
+      <footer className="border-t border-line">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-sm text-muted">
+          <Wordmark className="text-lg text-ink" />
           <span>Delayed jobs, shared permits, restart reconciliation.</span>
         </div>
       </footer>
@@ -311,7 +311,7 @@ function Trace({ kicker, lines }: { kicker: string; lines: string[] }) {
   return (
     <article>
       <h3 className="font-sans text-base font-semibold">{kicker}</h3>
-      <ol className="mt-4 border-l border-[#24302a]">
+      <ol className="mt-4 border-l border-line">
         {lines.map((line) => (
           <li key={line} className="py-2 pl-4 font-mono text-[12px] leading-snug text-[#c5cdc8]">
             {line}
