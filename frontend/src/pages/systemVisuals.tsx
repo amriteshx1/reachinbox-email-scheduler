@@ -10,20 +10,20 @@ const phases = [
 
 export function ExecutionPlane() {
   return (
-    <figure className="overflow-hidden rounded-2xl border border-[#24302a] bg-[#141a17]">
-      <figcaption className="flex items-start justify-between gap-4 border-b border-[#24302a] px-4 py-3">
+    <figure className="overflow-hidden rounded-2xl border border-line bg-[#141a17]">
+      <figcaption className="flex items-start justify-between gap-4 border-b border-line px-4 py-3">
         <div className="phase-stack min-w-36" aria-hidden>
           {phases.map(([id, state]) => (
             <p key={state} className="phase">
-              <span className="block font-mono text-[12px] text-[#e7ece8]">{id}</span>
-              <span className="block font-mono text-[11px] text-[#8d978f]">{state}</span>
+              <span className="block font-mono text-[12px] text-ink">{id}</span>
+              <span className="block font-mono text-[11px] text-muted">{state}</span>
             </p>
           ))}
         </div>
-        <span className="font-mono text-[11px] text-[#8d978f]">Not live state</span>
+        <span className="font-mono text-[11px] text-muted">Not live state</span>
       </figcaption>
       <div className="overflow-x-auto">
-        <svg viewBox="0 0 520 700" className="h-auto w-full min-w-[480px]" aria-hidden>
+        <svg viewBox="0 0 520 700" className="h-auto w-full min-w-120" aria-hidden>
           <text x="20" y="28" fill="#8d978f" fontSize="12" fontFamily={mono}>
             Hour window
           </text>
@@ -210,8 +210,8 @@ function Smtp({ x, y }: { x: number; y: number }) {
 export function ConstraintTimeline() {
   const ready = [72, 132, 192, 252, 312];
   return (
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-[#24302a] bg-[#141a17]">
-      <svg viewBox="0 0 840 300" className="h-auto w-full min-w-[720px]" role="img" aria-label="Jobs packed into an hour, with overflow moved to the next hour">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#141a17]">
+      <svg viewBox="0 0 840 300" className="h-auto w-full min-w-180" role="img" aria-label="Jobs packed into an hour, with overflow moved to the next hour">
         <text x="24" y="36" fill="#8d978f" fontSize="12" fontFamily={mono}>
           Current hour
         </text>
@@ -284,8 +284,8 @@ export function ConstraintTimeline() {
 
 export function CoordinationMap() {
   return (
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-[#24302a] bg-[#141a17]">
-      <svg viewBox="0 0 760 300" className="h-auto w-full min-w-[640px]" role="img" aria-label="Workers sharing one Redis rate gate">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#141a17]">
+      <svg viewBox="0 0 760 300" className="h-auto w-full min-w-160" role="img" aria-label="Workers sharing one Redis rate gate">
         {["Worker A", "Worker B", "Worker C"].map((name, i) => (
           <g key={name}>
             <rect x="24" y={28 + i * 72} width="150" height="52" rx="8" fill="#101412" stroke="#24302a" />
@@ -335,8 +335,8 @@ export function CoordinationMap() {
 
 export function RestartMap() {
   return (
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-[#24302a] bg-[#141a17]">
-      <svg viewBox="0 0 760 280" className="h-auto w-full min-w-[640px]" role="img" aria-label="Schedule before a worker restart and after reconciliation">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#141a17]">
+      <svg viewBox="0 0 760 280" className="h-auto w-full min-w-160" role="img" aria-label="Schedule before a worker restart and after reconciliation">
         <text x="24" y="36" fill="#8d978f" fontSize="12" fontFamily={mono}>
           Before restart
         </text>
