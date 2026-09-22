@@ -3,6 +3,7 @@ import type { SessionUser } from "../../lib/types";
 import { Button } from "../ui/Button";
 import { IconChevron, IconLogout, IconQueues, IconSlack } from "../ui/Icons";
 import { bullBoardUrl } from "../../lib/api";
+import { Wordmark } from "../brand/Wordmark";
 
 type Props = {
   user: SessionUser;
@@ -39,7 +40,7 @@ export function Sidebar({
 
   return (
     <aside className="flex w-65 shrink-0 flex-col border-r border-line bg-white px-4 py-5">
-      <div className="px-1 text-[22px] font-extrabold leading-none tracking-tight text-ink">ReachInbox</div>
+      <Wordmark className="px-1 text-[22px] leading-none text-ink" />
 
       <div className="relative mt-5">
         <button
