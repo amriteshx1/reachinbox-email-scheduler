@@ -1,25 +1,124 @@
 .sys {
   background-color: #101412;
-  background-image:
-    linear-gradient(to right, rgba(232, 236, 233, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(232, 236, 233, 0.04) 1px, transparent 1px);
-  background-size: 28px 28px;
   color: #e7ece8;
 }
 
-.sys-muted {
-  color: #8b968e;
+.phase-stack {
+  position: relative;
+  height: 2.75rem;
 }
 
-.sys-line {
-  border-color: #243028;
+.phase {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
 }
 
-.sys-node {
-  border: 1px solid #2c3830;
-  background: rgba(16, 20, 18, 0.86);
+.meter {
+  transform-box: fill-box;
+  transform-origin: left center;
 }
 
-.sys-pipe {
-  background: #00a63e;
+@media (prefers-reduced-motion: no-preference) {
+  .pipe-pulse {
+    animation: pipe-pulse 3.2s ease-in-out infinite;
+  }
+
+  .phase {
+    animation: phase-show 18s linear infinite;
+  }
+
+  .phase:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .phase:nth-child(2) {
+    animation-delay: 3.6s;
+  }
+  .phase:nth-child(3) {
+    animation-delay: 7.2s;
+  }
+  .phase:nth-child(4) {
+    animation-delay: 10.8s;
+  }
+  .phase:nth-child(5) {
+    animation-delay: 14.4s;
+  }
+
+  .meter-sender {
+    animation: meter-swell 9s ease-in-out infinite;
+  }
+
+  .meter-global {
+    animation: meter-swell 9s ease-in-out infinite;
+    animation-delay: -4s;
+  }
+
+  .lane-live {
+    animation: lane-live 4.5s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pipe-pulse,
+  .phase,
+  .meter-sender,
+  .meter-global,
+  .lane-live {
+    animation: none;
+  }
+
+  .phase:first-child {
+    opacity: 1;
+  }
+
+  .meter {
+    transform: scaleX(0.42);
+  }
+
+  .motion-job,
+  .motion-shift {
+    display: none;
+  }
+}
+
+@keyframes pipe-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes phase-show {
+  0%,
+  14% {
+    opacity: 1;
+  }
+  20%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes meter-swell {
+  0%,
+  100% {
+    transform: scaleX(0.18);
+  }
+  50% {
+    transform: scaleX(0.76);
+  }
+}
+
+@keyframes lane-live {
+  0%,
+  100% {
+    stroke: #24302a;
+  }
+  45%,
+  70% {
+    stroke: #00a63e;
+  }
 }
