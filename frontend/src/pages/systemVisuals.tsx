@@ -115,16 +115,6 @@ export function ExecutionPlane() {
           <Smtp x={32} y={620} />
           <Smtp x={196} y={620} />
           <Smtp x={360} y={620} />
-
-          <circle className="motion-job" r="4" fill="#00a63e">
-            <animateMotion dur="16s" repeatCount="indefinite" path="M260 182 V660" />
-          </circle>
-          <circle className="motion-job" r="3.5" fill="#7dcea0">
-            <animateMotion dur="16s" begin="5s" repeatCount="indefinite" path="M260 182 V528 H96 V640" />
-          </circle>
-          <circle className="motion-job" r="3.5" fill="#7dcea0">
-            <animateMotion dur="16s" begin="10s" repeatCount="indefinite" path="M260 182 V528 H424 V640" />
-          </circle>
         </svg>
       </div>
     </figure>
