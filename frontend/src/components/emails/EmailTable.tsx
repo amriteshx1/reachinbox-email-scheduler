@@ -8,7 +8,7 @@ export function EmailTable({ items, mode }: { items: EmailItem[]; mode: Mode }) 
   return (
     <div className="divide-y divide-line">
       {items.map((item) => (
-        <div key={item.id} className="flex items-center gap-5 px-8 py-4.5 hover:bg-zinc-50/80">
+        <div key={item.id} className="flex items-center gap-5 px-8 py-4.5 hover:bg-wash/80">
           <div className="w-[22%] max-w-60 min-w-33 shrink-0 truncate text-sm font-semibold">To: {item.toEmail}</div>
           <div className="w-37 shrink-0">
             <StatusBadge status={item.status} time={mode === "scheduled" ? item.scheduledAt : undefined} />
@@ -25,7 +25,7 @@ export function EmailTable({ items, mode }: { items: EmailItem[]; mode: Mode }) 
               </>
             ) : null}
           </div>
-          <span className="shrink-0 text-[#d4d4d4]">
+          <span className="shrink-0 text-muted">
             <IconStar />
           </span>
         </div>
