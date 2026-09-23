@@ -51,7 +51,7 @@ export function Sidebar({
           {user.avatarUrl ? (
             <img src={user.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
           ) : (
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-bold text-page">
               {initials}
             </div>
           )}
