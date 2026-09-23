@@ -10,7 +10,7 @@ const phases = [
 
 export function ExecutionPlane() {
   return (
-    <figure className="overflow-hidden rounded-2xl border border-line bg-[#111111]">
+    <figure className="overflow-hidden rounded-2xl border border-line bg-wash">
       <figcaption className="flex items-start justify-between gap-4 border-b border-line px-4 py-3">
         <div className="phase-stack min-w-36" aria-hidden>
           {phases.map(([id, state]) => (
@@ -200,7 +200,7 @@ function Smtp({ x, y }: { x: number; y: number }) {
 export function ConstraintTimeline() {
   const ready = [72, 132, 192, 252, 312];
   return (
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#111111]">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-wash">
       <div className="flex justify-center px-4 py-6">
       <svg viewBox="0 0 840 300" className="h-auto w-210 max-w-full" role="img" aria-label="Jobs packed into an hour, with overflow moved to the next hour">
         <text x="24" y="36" fill="#8a8a8a" fontSize="12" fontFamily={mono}>
@@ -276,7 +276,7 @@ export function ConstraintTimeline() {
 
 export function CoordinationMap() {
   return (
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#111111]">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-wash">
       <div className="flex justify-center px-4 py-6">
       <svg viewBox="0 0 760 300" className="h-auto w-190 max-w-full" role="img" aria-label="Workers sharing one Redis rate gate">
         {["Worker A", "Worker B", "Worker C"].map((name, i) => (
@@ -329,7 +329,7 @@ export function CoordinationMap() {
 
 export function RestartMap() {
   return (
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-[#111111]">
+    <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-wash">
       <div className="flex justify-center px-4 py-6">
       <svg viewBox="0 0 760 300" className="h-auto w-190 max-w-full" role="img" aria-label="Schedule before a worker restart and after reconciliation">
         <text x="24" y="32" fill="#8a8a8a" fontSize="12" fontFamily={mono}>
