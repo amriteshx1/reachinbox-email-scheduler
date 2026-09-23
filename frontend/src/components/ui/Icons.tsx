@@ -11,7 +11,7 @@ export function GoogleIcon() {
 
 export function OneboxMark({ className = "h-9 w-9" }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center rounded-lg bg-brand text-white ${className}`}>
+    <div className={`flex items-center justify-center rounded-lg bg-brand text-page ${className}`}>
       <span className="text-lg font-bold leading-none">M</span>
     </div>
   );
