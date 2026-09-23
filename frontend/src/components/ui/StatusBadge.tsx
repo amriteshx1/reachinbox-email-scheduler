@@ -4,8 +4,8 @@ import type { EmailStatus } from "../../lib/types";
 const styles: Record<EmailStatus, string> = {
   scheduled: "bg-badge text-progress",
   sending: "bg-badge text-progress",
-  sent: "bg-wash text-[#c5cdc8]",
-  failed: "bg-red-50 text-danger",
+  sent: "bg-wash text-[#c8c8c8]",
+  failed: "bg-red-950/40 text-danger",
 };
 
 const labels: Record<EmailStatus, string> = {
