@@ -7,9 +7,9 @@ type ToastItem = {
 };
 
 const colors = {
-  success: "bg-emerald-600",
-  error: "bg-red-600",
-  info: "bg-zinc-800",
+  success: "bg-zinc-200 text-zinc-950",
+  error: "bg-red-600 text-white",
+  info: "bg-zinc-800 text-white",
 };
 
 export function ToastStack({
@@ -35,7 +35,7 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: str
   }, [toast.id, onDismiss]);
 
   return (
-    <div className={`pointer-events-auto rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg ${colors[toast.kind]}`}>
+    <div className={`pointer-events-auto rounded-lg px-4 py-3 text-sm font-medium shadow-lg ${colors[toast.kind]}`}>
       {toast.message}
     </div>
   );
