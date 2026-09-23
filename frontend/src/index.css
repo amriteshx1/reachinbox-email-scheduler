@@ -4,16 +4,16 @@
   --font-sans: "Inter", "Open Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mark: "Instrument Serif", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --color-ink: #e7ece8;
-  --color-muted: #8d978f;
-  --color-page: #101412;
-  --color-line: #24302a;
-  --color-wash: #171d1a;
-  --color-mint: #163028;
-  --color-brand: #00a63e;
-  --color-brand-hover: #14b84f;
-  --color-progress: #e0b07a;
-  --color-badge: #3a2a1c;
+  --color-ink: #f2f2f2;
+  --color-muted: #8a8a8a;
+  --color-page: #060606;
+  --color-line: #2a2a2a;
+  --color-wash: #111111;
+  --color-mint: #1a1a1a;
+  --color-brand: #f5f5f5;
+  --color-brand-hover: #d4d4d4;
+  --color-progress: #c8c8c8;
+  --color-badge: #1f1f1f;
   --color-danger: #f07171;
 }
 
@@ -27,7 +27,7 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-ink);
-  background: #101412;
+  background: #060606;
   -webkit-font-smoothing: antialiased;
 }
 
