@@ -309,7 +309,7 @@ export function ComposeDialog({ open, onClose, onScheduled }: Props) {
             <button type="button" className="relative text-brand" title="Attach leads" onClick={() => fileRef.current?.click()}>
               <IconPaperclip />
               {detected && detected.emails.length > 0 ? (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white">
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-page">
                   {detected.emails.length}
                 </span>
               ) : null}
