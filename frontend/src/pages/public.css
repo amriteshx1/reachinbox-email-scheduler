@@ -1,6 +1,6 @@
 .sys {
-  background-color: #101412;
-  color: #e7ece8;
+  background-color: #060606;
+  color: #f2f2f2;
 }
 
 .phase-stack {
@@ -115,10 +115,10 @@
 @keyframes lane-live {
   0%,
   100% {
-    stroke: #24302a;
+    stroke: #2a2a2a;
   }
   45%,
   70% {
-    stroke: #00a63e;
+    stroke: #f2f2f2;
   }
 }
