@@ -96,7 +96,7 @@ export function LandingPage() {
           <Link to="/" className="text-[1.35rem] text-ink">
             <Wordmark />
           </Link>
-          <nav className="order-3 flex w-full flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#c5cdc8] md:order-0 md:ml-auto md:w-auto">
+          <nav className="order-3 flex w-full flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted md:order-0 md:ml-auto md:w-auto">
             <a href="#architecture" className="hover:text-white">Architecture</a>
             <a href="#execution" className="hover:text-white">Execution</a>
             <a href="#schedule" className="hover:text-white">Scheduling</a>
@@ -105,7 +105,7 @@ export function LandingPage() {
           </nav>
           <Link
             to="/dashboard"
-            className="ml-auto inline-flex h-9 items-center rounded-lg bg-brand px-3.5 text-sm font-medium text-white hover:bg-brand-hover md:ml-0"
+            className="ml-auto inline-flex h-9 items-center rounded-lg bg-brand px-3.5 text-sm font-medium text-page hover:bg-brand-hover md:ml-0"
           >
             Open Dashboard
           </Link>
@@ -115,7 +115,7 @@ export function LandingPage() {
       <main>
         <section className="mx-auto max-w-6xl px-5 py-16">
           <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1.15fr)_22rem] lg:gap-x-20">
-            <h1 className="font-sans text-4xl font-semibold leading-[1.17] tracking-[-0.03em] text-[#f3f6f4] sm:text-5xl">
+            <h1 className="font-sans text-4xl font-semibold leading-[1.17] tracking-[-0.03em] text-ink sm:text-5xl">
               Distributed scheduling for reliable email delivery.
             </h1>
             <div>
@@ -125,11 +125,11 @@ export function LandingPage() {
               <div className="mt-4 flex flex-wrap items-center gap-4">
                 <Link
                   to="/dashboard"
-                  className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
+                  className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-medium text-page hover:bg-brand-hover"
                 >
                   Open Dashboard
                 </Link>
-                <a href="#execution" className="text-sm font-medium text-[#d7e4dc] underline-offset-4 hover:underline">
+                <a href="#execution" className="text-sm font-medium text-ink underline-offset-4 hover:underline">
                   How execution works
                 </a>
               </div>
@@ -207,13 +207,13 @@ export function LandingPage() {
               />
             </div>
             <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line sm:grid-cols-2">
-              <div className="bg-[#141a17] px-4 py-4">
+              <div className="bg-wash px-4 py-4">
                 <h3 className="font-mono text-[12px] text-progress">Transient failure</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   An SMTP error with no receipt releases the hourly permit and throws, so BullMQ retries. The row goes back to scheduled until the attempt budget is spent.
                 </p>
               </div>
-              <div className="bg-[#141a17] px-4 py-4">
+              <div className="bg-wash px-4 py-4">
                 <h3 className="font-mono text-[12px] text-danger">Permanent failure</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   When the attempt budget is spent, the row is marked failed. Reconciliation does not scan failed rows, so that job is not put back on the queue.
@@ -237,9 +237,9 @@ export function LandingPage() {
             </p>
             <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line sm:grid-cols-2 lg:grid-cols-4">
               {stores.map((store) => (
-                <article key={store.name} className="bg-[#141a17] px-4 py-4">
+                <article key={store.name} className="bg-wash px-4 py-4">
                   <store.icon size={16} strokeWidth={1.5} className="text-brand" aria-hidden />
-                  <h3 className="mt-3 font-mono text-[13px] text-[#d7efe0]">{store.name}</h3>
+                  <h3 className="mt-3 font-mono text-[13px] text-ink">{store.name}</h3>
                   <p className="mt-1 text-sm text-ink">{store.role}</p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{store.body}</p>
                 </article>
@@ -257,7 +257,7 @@ export function LandingPage() {
             <dl className="mt-8 overflow-hidden rounded-xl border border-line">
               {reference.map((item) => (
                 <div key={item.name} className="grid gap-1 border-t border-line px-5 py-4 first:border-t-0 sm:grid-cols-[11.5rem_1fr] sm:items-baseline sm:gap-8">
-                  <dt className="font-mono text-[13px] text-[#d7efe0]">{item.name}</dt>
+                  <dt className="font-mono text-[13px] text-ink">{item.name}</dt>
                   <dd className="text-sm leading-relaxed text-muted">{item.role}</dd>
                 </div>
               ))}
@@ -275,7 +275,7 @@ export function LandingPage() {
             </div>
             <Link
               to="/dashboard"
-              className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
+              className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-medium text-page hover:bg-brand-hover"
             >
               Open Dashboard
             </Link>
@@ -299,7 +299,7 @@ function Trace({ kicker, lines }: { kicker: string; lines: string[] }) {
       <h3 className="font-sans text-base font-semibold">{kicker}</h3>
       <ol className="mt-4 border-l border-line">
         {lines.map((line) => (
-          <li key={line} className="py-2 pl-4 font-mono text-[12px] leading-snug text-[#c5cdc8]">
+          <li key={line} className="py-2 pl-4 font-mono text-[12px] leading-snug text-[#c8c8c8]">
             {line}
           </li>
         ))}
